@@ -90,17 +90,21 @@ export async function leerBitacora(pagina: number) {
     .select("id,actor_id,fecha_hora,accion,entidad,registro_id,motivo,antes,despues", { count: "exact" })
     .order("fecha_hora", { ascending: false }).order("id").range((pagina - 1) * 50, pagina * 50 - 1);
   comprobarError(error);
-  const eventos = data ?? [];
-  const ids = [...new Set(eventos.flatMap((evento) => evento.actor_id ? [evento.actor_id] : []))];
-  const { data: actores, error: actoresError } = ids.length > 0
-    ? await c.from("perfiles").select("usuario_id,nombre").in("usuario_id", ids)
-    : { data: [], error: null };
-  comprobarError(actoresError);
-  const nombres = new Map((actores ?? []).map((actor) => [actor.usuario_id, actor.nombre]));
-  return { eventos: eventos.map((evento) => ({
-    ...evento,
-    actor_nombre: evento.actor_id ? (nombres.get(evento.actor_id) ?? "Usuario no disponible") : null,
-  })), total: count ?? 0 };
+  const filas = data ?? [];
+  // Resuelve el nombre y rol de cada actor; el administrador puede leer todos los perfiles.
+  const ids = [...new Set(filas.map((e) => e.actor_id).filter((id): id is string => !!id))];
+  const actores = new Map<string, { nombre: string; rol: string }>();
+  if (ids.length > 0) {
+    const r = await c.from("perfiles").select("usuario_id,nombre,rol").in("usuario_id", ids);
+    comprobarError(r.error);
+    for (const p of r.data ?? []) actores.set(p.usuario_id, { nombre: p.nombre, rol: p.rol });
+  }
+  const eventos = filas.map((e) => ({
+    ...e,
+    actor_nombre: e.actor_id ? actores.get(e.actor_id)?.nombre ?? null : null,
+    actor_rol: e.actor_id ? actores.get(e.actor_id)?.rol ?? null : null,
+  }));
+  return { eventos, total: count ?? 0 };
 }
 
 export async function leerActividadUsuarios(ids: string[]) {

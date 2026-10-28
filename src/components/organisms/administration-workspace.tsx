@@ -4,6 +4,7 @@ import { CategoryStatusSwitch } from "@/components/molecules/category-status-swi
 import { UserStatusSwitch } from "@/components/molecules/user-status-switch";
 import { UserActionsMenu } from "@/components/organisms/users/user-actions-menu";
 import { OperationForm } from "./operation-form";
+import { describirAccion, describirActor, describirEntidad, formatearInstante, resumirCambio } from "@/lib/bitacora";
 import type { AccionOperacion, Categoria, Perfil, PerfilAdministrado, EventoBitacoraVista, CampoOperacion } from "@/types/finanzas";
 
 function fechaCorta(valor: string): string {
@@ -52,7 +53,58 @@ export function AdministrationWorkspace({ modulo, perfil, categorias, perfiles, 
       <section className="rounded-card border border-borde bg-superficie p-5"><h2 className="font-serif text-xl">Controles de acceso</h2>
         <p className="mt-2 text-sm">Las cuentas inactivas no operan. El empleado accede solo a sus movimientos; el administrador gestiona usuarios y categorías. Las contraseñas y los eventos de sesión se administran en Auth, no en esta bitácora.</p></section>
       <div className="overflow-x-auto rounded-card border border-borde bg-superficie p-5"><table className="w-full text-sm"><thead><tr className="border-b border-borde text-left">{["Fecha y hora", "Acción", "Entidad", "Actor", "Detalle"].map((t) => <th key={t} className="p-3">{t}</th>)}</tr></thead>
-        <tbody>{eventos.map((e) => <tr key={e.id} className="border-b border-borde align-top"><td className="p-3 whitespace-nowrap">{e.fecha_hora}</td><td className="p-3">{e.accion}</td><td className="p-3">{e.entidad}</td><td className="p-3 font-medium">{e.actor_nombre ?? "Sistema"}</td><td className="p-3"><details><summary className="cursor-pointer text-primario">Ver cambio</summary><p>{e.motivo}</p><h3 className="mt-2 font-semibold">Antes</h3><pre className="max-w-lg overflow-auto text-xs">{JSON.stringify(e.antes, null, 2)}</pre><h3 className="mt-2 font-semibold">Después</h3><pre className="max-w-lg overflow-auto text-xs">{JSON.stringify(e.despues, null, 2)}</pre></details></td></tr>)}</tbody>
+        <tbody>{eventos.map((e) => {
+          const etiquetaAccion = describirAccion(e.accion);
+          const actor = describirActor(e.actor_nombre, e.actor_rol, e.actor_id);
+          const resumen = resumirCambio(e.accion, e.entidad, e.antes, e.despues);
+          return (
+            <tr key={e.id} className="border-b border-borde align-top">
+              <td className="p-3 whitespace-nowrap"><time dateTime={e.fecha_hora}>{formatearInstante(e.fecha_hora)}</time></td>
+              <td className="p-3"><Badge variant={etiquetaAccion.tono}>{etiquetaAccion.etiqueta}</Badge></td>
+              <td className="p-3">{describirEntidad(e.entidad)}</td>
+              <td className="p-3">
+                <strong className="block font-medium">{actor.nombre}</strong>
+                <span className="text-xs text-texto-suave">{actor.detalle}</span>
+              </td>
+              <td className="p-3">
+                <details>
+                  <summary className="cursor-pointer text-primario">Ver cambio</summary>
+                  <div className="mt-3 space-y-3">
+                    <p className="font-medium">
+                      {resumen.titulo}
+                      {resumen.sujeto && <span className="font-normal text-texto-suave"> · {resumen.sujeto}</span>}
+                    </p>
+                    {e.motivo && <p className="text-sm"><span className="font-medium">Motivo:</span> {e.motivo}</p>}
+                    {resumen.filas.length > 0 && (
+                      <table className="w-full max-w-md text-xs">
+                        <thead>
+                          <tr className="text-left text-texto-suave">
+                            <th className="py-1 pr-3 font-medium">Campo</th>
+                            {resumen.mostrarAntes && <th className="py-1 pr-3 font-medium">Antes</th>}
+                            <th className="py-1 font-medium">{resumen.mostrarAntes ? "Después" : "Valor"}</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {resumen.filas.map((f) => (
+                            <tr key={f.campo} className="border-t border-borde">
+                              <td className="py-1.5 pr-3 font-medium">{f.campo}</td>
+                              {resumen.mostrarAntes && <td className="py-1.5 pr-3 text-texto-suave">{f.antes}</td>}
+                              <td className="py-1.5">{f.despues}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    )}
+                    <details className="text-xs">
+                      <summary className="cursor-pointer text-texto-suave">Datos técnicos</summary>
+                      <pre className="mt-2 max-w-lg overflow-auto">{JSON.stringify({ antes: e.antes, despues: e.despues }, null, 2)}</pre>
+                    </details>
+                  </div>
+                </details>
+              </td>
+            </tr>
+          );
+        })}</tbody>
       </table>{eventos.length === 0 && <p className="p-5 text-sm">No hay eventos en esta página.</p>}</div>
     </> : <>
       {admin && modulo === "usuarios" && <details className="group">

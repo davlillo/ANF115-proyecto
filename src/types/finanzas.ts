@@ -71,6 +71,8 @@ export type EventoBitacora = {
   motivo: string | null;
   antes: unknown;
   despues: unknown;
+  actor_nombre?: string | null;   
+  actor_rol?: string | null; 
 };
 
 export type EventoBitacoraVista = EventoBitacora & {

@@ -4,6 +4,7 @@ const nextConfig: NextConfig = {
   cacheComponents: true,
   partialPrefetching: true,
   poweredByHeader: false,
+  serverExternalPackages: ["exceljs", "jspdf"],
   turbopack: {
     rules: {
       "*.css": {

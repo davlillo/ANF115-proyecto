@@ -59,11 +59,20 @@ export function FinanceWorkspace({ data, modulo, accion }: {
     if (data.filtro.estado) q.set("estado", data.filtro.estado);
     return `${url}?${q}`;
   };
+    const descargar = (formato: "pdf" | "xlsx") => {
+    const q = new URLSearchParams({ desde: data.filtro.desde, hasta: data.filtro.hasta, granularidad: data.filtro.granularidad });
+    if (data.filtro.categoria) q.set("categoria", data.filtro.categoria);
+    return `/api/reportes/${formato}?${q}`;
+  };
   return <div className="space-y-6">
     <header className="flex flex-wrap items-end justify-between gap-4">
       <div><p className="text-xs font-semibold uppercase tracking-widest text-primario">Panadería Carlitos · Control operativo</p>
         <h1 className="mt-2 font-serif text-4xl">{titulo}</h1>
         <p className="mt-2 text-sm text-texto-suave">Cobros y pagos · {data.perfil.rol === "empleado" ? "Solo tus movimientos" : "Todos los movimientos autorizados"} · Datos simulados</p></div>
+        {modulo === "reportes" && <div className="flex flex-wrap gap-2">
+        <a href={descargar("pdf")} download className="rounded-input border border-borde-fuerte bg-superficie px-5 py-2.5 text-sm font-semibold">Descargar PDF</a>
+        <a href={descargar("xlsx")} download className="rounded-input bg-primario px-5 py-2.5 text-sm font-semibold text-white">Descargar Excel</a>
+      </div>}
       {movimiento && <a href="#nueva-captura" className="rounded-input bg-primario px-5 py-2.5 text-sm font-semibold text-white">Registrar {modulo}</a>}
     </header>
     <FinanceFilters filtro={data.filtro} categorias={data.categorias} reportes={modulo === "reportes"} />
