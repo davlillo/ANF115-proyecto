@@ -50,7 +50,7 @@ export default async function CuentaDetallePage({ params }: Props) {
     }
 
     return (
-      <div className="rounded-card border border-peligro/30 bg-superficie p-6 shadow-card">
+      <div className="rounded-card border border-peligro/30 bg-superficie p-6">
         <h1 className="text-lg text-texto">No se pudo cargar la cuenta</h1>
         <p className="mt-2 text-sm text-texto-suave" role="alert">
           {resultado.error.mensaje}
@@ -96,13 +96,13 @@ export default async function CuentaDetallePage({ params }: Props) {
         aria-label="Datos de la cuenta"
         className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"
       >
-        <div className="rounded-card border border-borde bg-superficie p-4 shadow-card">
+        <div className="rounded-card border border-borde bg-superficie p-4">
           <p className="text-xs font-semibold uppercase tracking-wide text-texto-suave">
             Rubro
           </p>
           <p className="mt-1 text-sm text-texto">{cuenta.rubroNombre}</p>
         </div>
-        <div className="rounded-card border border-borde bg-superficie p-4 shadow-card">
+        <div className="rounded-card border border-borde bg-superficie p-4">
           <p className="text-xs font-semibold uppercase tracking-wide text-texto-suave">
             Jerarquia
           </p>
@@ -110,7 +110,7 @@ export default async function CuentaDetallePage({ params }: Props) {
             {cuenta.padreId ? "Cuenta dependiente" : "Cuenta raiz"}
           </p>
         </div>
-        <div className="rounded-card border border-borde bg-superficie p-4 shadow-card">
+        <div className="rounded-card border border-borde bg-superficie p-4">
           <p className="text-xs font-semibold uppercase tracking-wide text-texto-suave">
             Movimiento
           </p>
@@ -120,7 +120,7 @@ export default async function CuentaDetallePage({ params }: Props) {
               : "Solo agrupa cuentas"}
           </p>
         </div>
-        <div className="rounded-card border border-borde bg-superficie p-4 shadow-card">
+        <div className="rounded-card border border-borde bg-superficie p-4">
           <p className="text-xs font-semibold uppercase tracking-wide text-texto-suave">
             Version
           </p>
@@ -128,7 +128,7 @@ export default async function CuentaDetallePage({ params }: Props) {
             {cuenta.version}
           </p>
         </div>
-        <div className="rounded-card border border-borde bg-superficie p-4 shadow-card">
+        <div className="rounded-card border border-borde bg-superficie p-4">
           <p className="text-xs font-semibold uppercase tracking-wide text-texto-suave">
             Vigencia desde
           </p>
@@ -136,7 +136,7 @@ export default async function CuentaDetallePage({ params }: Props) {
             {formatearFechaCorta(cuenta.vigenciaDesde)}
           </p>
         </div>
-        <div className="rounded-card border border-borde bg-superficie p-4 shadow-card">
+        <div className="rounded-card border border-borde bg-superficie p-4">
           <p className="text-xs font-semibold uppercase tracking-wide text-texto-suave">
             Vigencia hasta
           </p>
@@ -146,7 +146,7 @@ export default async function CuentaDetallePage({ params }: Props) {
               : "Sin fecha de fin"}
           </p>
         </div>
-        <div className="rounded-card border border-borde bg-superficie p-4 shadow-card">
+        <div className="rounded-card border border-borde bg-superficie p-4">
           <p className="text-xs font-semibold uppercase tracking-wide text-texto-suave">
             Correctora
           </p>
@@ -154,7 +154,7 @@ export default async function CuentaDetallePage({ params }: Props) {
             {cuenta.esCorrectora ? "Si, reduce su rubro" : "No"}
           </p>
         </div>
-        <div className="rounded-card border border-borde bg-superficie p-4 shadow-card">
+        <div className="rounded-card border border-borde bg-superficie p-4">
           <p className="text-xs font-semibold uppercase tracking-wide text-texto-suave">
             Empresa
           </p>
@@ -183,7 +183,7 @@ export default async function CuentaDetallePage({ params }: Props) {
           ) : null}
 
           {opcionesResultado?.ok ? (
-            <div className="rounded-card border border-borde bg-superficie p-5 shadow-card sm:p-6">
+            <div className="rounded-card border border-borde bg-superficie p-5 sm:p-6">
               <AccountForm
                 accion={guardarCuentaAction}
                 opciones={opcionesResultado.datos}

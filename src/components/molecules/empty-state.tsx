@@ -20,15 +20,15 @@ export function EmptyState({
   return (
     <div
       className={cn(
-        "flex flex-col items-center justify-center gap-3 rounded-card border border-dashed border-borde-fuerte bg-superficie/70 px-6 py-12 text-center",
+        "flex flex-col items-center justify-center gap-3 rounded-card border border-dashed border-borde-fuerte bg-superficie px-6 py-12 text-center",
         className,
       )}
     >
-      <span className="flex size-11 items-center justify-center rounded-full bg-superficie-tenue text-primario">
+      <span className="flex size-11 items-center justify-center rounded-full bg-superficie-tenue text-texto-2">
         <Icono aria-hidden="true" className="size-5" />
       </span>
       <div className="max-w-md space-y-1">
-        <p className="font-serif text-lg text-texto">{titulo}</p>
+        <p className="text-[17px] font-semibold tracking-[-0.01em] text-texto">{titulo}</p>
         {descripcion ? (
           <p className="text-sm leading-relaxed text-texto-suave">
             {descripcion}

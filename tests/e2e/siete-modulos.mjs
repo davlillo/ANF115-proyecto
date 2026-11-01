@@ -23,7 +23,7 @@ try {
     await page.waitForURL("**/dashboard");
     await page.getByRole("heading", { name: "Panel financiero", exact: true }).waitFor();
     await page.screenshot({ path: `test-results/panel-${rol}-desktop.png` });
-    const links = await page.getByRole("navigation", { name: "Navegacion principal" }).getByRole("link").allTextContents();
+    const links = await page.getByRole("navigation", { name: "Navegación principal" }).getByRole("link").allTextContents();
     assert.equal(links.length, rol === "administrador" ? 7 : 5);
     for (const [path, title] of [["ingresos", "Ingresos"], ["gastos", "Gastos"], ["categorias", "Categorías"], ["reportes", "Reportes"]]) {
       await page.goto(`${base}/${path}`);
@@ -43,8 +43,8 @@ try {
       const row = page.getByRole("row").filter({ hasText: concepto });
       await row.waitFor();
       assert.ok((await row.innerText()).includes("$25.50"));
-      await row.getByText("Anular", { exact: true }).click();
-      const anular = row.locator("details").first().locator("form");
+      await row.getByRole("button", { name: "Anular", exact: true }).click();
+      const anular = page.locator("form").filter({ has: page.getByLabel(/Motivo de anulación/) });
       await anular.getByLabel(/Motivo de anulación/).fill("Cierre de prueba E2E con datos simulados");
       await anular.getByRole("button", { name: "Confirmar anulación" }).click();
       await row.getByText("Anulado", { exact: true }).waitFor();

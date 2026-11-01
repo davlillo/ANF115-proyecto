@@ -1,9 +1,8 @@
-﻿"use client";
+"use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LogOut, Menu, UserRound, X } from "lucide-react";
+import { Croissant, LogOut, Menu, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import {
   filtrarNavegacion,
@@ -11,6 +10,7 @@ import {
   type GrupoNavegacion,
   type ItemNavegacion,
 } from "@/config/navegacion";
+import { Avatar } from "@/components/atoms/avatar";
 import type { Permiso } from "@/config/permisos";
 import { cn } from "@/lib/utils";
 import { rutas } from "@/config/rutas";
@@ -47,18 +47,15 @@ function ItemEnlace({
       onClick={alNavegar}
       aria-current={activo ? "page" : undefined}
       className={cn(
-        "group flex items-center gap-3 rounded-input border-l-2 px-3 py-2 text-sm transition-colors",
+        "group flex h-10 items-center gap-3 rounded-input border px-3 text-sm transition-colors",
         activo
-          ? "border-dorado-400 bg-white/10 font-semibold text-crema-50"
-          : "border-transparent text-crema-100/75 hover:bg-white/5 hover:text-crema-50",
+          ? "border-borde bg-superficie font-semibold text-texto"
+          : "border-transparent font-medium text-texto-2 hover:bg-superficie-tenue",
       )}
     >
       <Icono
         aria-hidden="true"
-        className={cn(
-          "size-4 shrink-0",
-          activo ? "text-dorado-400" : "text-crema-100/50",
-        )}
+        className={cn("size-[18px] shrink-0", activo ? "text-texto" : "text-texto-suave")}
       />
       <span className="truncate">{item.titulo}</span>
     </Link>
@@ -80,34 +77,30 @@ function ContenidoSidebar({
 }) {
   return (
     <div className="flex h-full flex-col">
-      <div className="border-b border-white/10 px-6 py-6">
+      <div className="px-5 pb-4 pt-6">
         <Link
           href="/dashboard"
           onClick={alNavegar}
-          className="block w-fit rounded-input focus-visible:outline-crema-50"
-          aria-label="Panaderia Carlitos Finanzas, ir al dashboard"
+          className="flex w-fit items-center gap-3 rounded-input"
+          aria-label="Panadería Carlitos Finanzas, ir al panel financiero"
         >
-          <Image
-            src="/branding/logo-blanco.svg"
-            alt="Panaderia Carlitos"
-            width={560}
-            height={180}
-            unoptimized
-            className="h-12 w-auto"
-            priority
-          />
+          <span className="flex size-[34px] items-center justify-center rounded-input bg-primario text-acento-tinte">
+            <Croissant aria-hidden="true" className="size-5" />
+          </span>
+          <span className="flex flex-col leading-tight">
+            <span className="text-base font-semibold tracking-[-0.02em]">Carlitos</span>
+            <span className="etiqueta-mono mt-0.5 tracking-[0.14em]">Finanzas</span>
+          </span>
         </Link>
       </div>
 
       <nav
-        aria-label="Navegacion principal"
-        className="scrollbar-menu flex-1 space-y-5 overflow-y-auto px-3 py-5"
+        aria-label="Navegación principal"
+        className="scrollbar-menu flex-1 space-y-6 overflow-y-auto px-3 py-4"
       >
         {grupos.map((grupo) => (
           <div key={grupo.id} className="space-y-1">
-            <p className="px-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-crema-100/40">
-              {grupo.titulo}
-            </p>
+            <p className="etiqueta-mono px-3 pb-1">{grupo.titulo}</p>
             {grupo.items.map((item) => (
               <ItemEnlace
                 key={item.href}
@@ -120,14 +113,31 @@ function ContenidoSidebar({
         ))}
       </nav>
 
-      <div className="border-t border-white/10 p-4">
-        <div className="flex items-center gap-2 rounded-card border border-white/10 bg-white/5 p-2">
-          <Link href={rutas.usuarios.propio} onClick={alNavegar} className="flex min-w-0 flex-1 items-center gap-3 rounded-input p-1 text-crema-50 transition-colors hover:bg-white/10">
-            <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-dorado-400/15 text-dorado-400"><UserRound aria-hidden="true" className="size-5" /></span>
-            <span className="min-w-0"><span className="block truncate text-sm font-semibold">{perfil?.nombre ?? "Mi perfil"}</span>
-              <span className="block text-[11px] capitalize text-crema-100/60">{perfil?.rol}</span></span>
+      <div className="p-3">
+        <div className="flex items-center gap-1 rounded-[14px] border border-borde bg-superficie p-2">
+          <Link
+            href={rutas.usuarios.propio}
+            onClick={alNavegar}
+            className="flex min-w-0 flex-1 items-center gap-3 rounded-input p-1 transition-colors hover:bg-superficie-fila"
+            aria-label="Consultar mi perfil"
+          >
+            <Avatar nombre={perfil?.nombre ?? "Mi perfil"} />
+            <span className="min-w-0">
+              <span className="block truncate text-[13px] font-semibold">{perfil?.nombre ?? "Mi perfil"}</span>
+              <span className="block text-xs capitalize text-texto-suave">{perfil?.rol}</span>
+            </span>
           </Link>
-          {cerrarSesion && <form action={cerrarSesion}><button className="flex size-9 items-center justify-center rounded-input text-crema-100/60 transition-colors hover:bg-white/10 hover:text-crema-50" aria-label="Cerrar sesión" title="Cerrar sesión"><LogOut aria-hidden="true" className="size-4" /></button></form>}
+          {cerrarSesion && (
+            <form action={cerrarSesion}>
+              <button
+                className="flex size-9 items-center justify-center rounded-full text-texto-suave transition-colors hover:bg-superficie-tenue hover:text-texto"
+                aria-label="Cerrar sesión"
+                title="Cerrar sesión"
+              >
+                <LogOut aria-hidden="true" className="size-4" />
+              </button>
+            </form>
+          )}
         </div>
       </div>
     </div>
@@ -187,32 +197,27 @@ export function Sidebar({ permisos, grupos, cerrarSesion, perfil }: SidebarProps
 
   return (
     <>
-      <header className="fixed inset-x-0 top-0 z-40 flex h-14 items-center gap-3 border-b border-borde bg-crema-50/95 px-4 backdrop-blur lg:hidden">
+      <header className="fixed inset-x-0 top-0 z-40 flex h-14 items-center gap-3 border-b border-borde bg-fondo/95 px-4 backdrop-blur lg:hidden">
         <button
           ref={botonAbrir}
           type="button"
           onClick={() => setAbierto(true)}
-          className="rounded-input p-2 text-texto transition-colors hover:bg-superficie-tenue"
+          className="flex size-10 items-center justify-center rounded-full text-texto transition-colors hover:bg-superficie-tenue"
           aria-label="Abrir menu de navegacion"
           aria-expanded={abierto}
           aria-controls="menu-lateral-movil"
         >
           <Menu aria-hidden="true" className="size-5" />
         </button>
-        <Link href="/dashboard" className="flex items-center gap-2">
-          <Image
-            src="/branding/isotipo.svg"
-            alt=""
-            width={128}
-            height={128}
-            unoptimized
-            className="size-7 rounded-md"
-          />
-          <span className="font-serif text-lg text-cafe-900">Carlitos</span>
+        <Link href="/dashboard" className="flex items-center gap-2.5">
+          <span className="flex size-[30px] items-center justify-center rounded-input bg-primario text-acento-tinte">
+            <Croissant aria-hidden="true" className="size-4" />
+          </span>
+          <span className="text-base font-semibold tracking-[-0.02em]">Carlitos</span>
         </Link>
       </header>
 
-      <aside className="hidden w-[var(--ancho-sidebar)] shrink-0 bg-cafe-900 lg:block">
+      <aside className="hidden w-[var(--ancho-sidebar)] shrink-0 border-r border-borde bg-fondo lg:block">
         <div className="fixed inset-y-0 left-0 w-[var(--ancho-sidebar)]">
           <ContenidoSidebar pathname={pathname} grupos={gruposVisibles} cerrarSesion={cerrarSesion} perfil={perfil} />
         </div>
@@ -222,7 +227,7 @@ export function Sidebar({ permisos, grupos, cerrarSesion, perfil }: SidebarProps
         <div className="fixed inset-0 z-50 lg:hidden">
           <button
             type="button"
-            className="absolute inset-0 bg-cafe-900/50 backdrop-blur-[2px]"
+            className="absolute inset-0 bg-texto/40 backdrop-blur-[2px]"
             aria-label="Cerrar menu de navegacion"
             onClick={() => setAbierto(false)}
           />
@@ -232,13 +237,13 @@ export function Sidebar({ permisos, grupos, cerrarSesion, perfil }: SidebarProps
             role="dialog"
             aria-modal="true"
             aria-label="Menu de navegacion"
-            className="relative h-full w-[min(86vw,320px)] bg-cafe-900 shadow-elevada"
+            className="relative h-full w-[min(86vw,320px)] border-r border-borde bg-fondo shadow-flotante"
           >
             <button
               ref={botonCerrar}
               type="button"
               onClick={() => setAbierto(false)}
-              className="absolute right-3 top-4 z-10 rounded-input p-2 text-crema-50/80 transition-colors hover:bg-white/10 hover:text-crema-50"
+              className="absolute right-3 top-4 z-10 flex size-9 items-center justify-center rounded-full text-texto-suave transition-colors hover:bg-superficie-tenue hover:text-texto"
               aria-label="Cerrar menu"
             >
               <X aria-hidden="true" className="size-5" />

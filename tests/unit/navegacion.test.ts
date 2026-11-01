@@ -5,9 +5,9 @@ import {
 } from "@/config/navegacion";
 
 describe("navegacion", () => {
-  it("presenta exactamente los siete módulos en el orden del contexto", () => {
+  it("presenta los siete módulos agrupados en Resumen, Operación y Administración", () => {
     expect(navegacion.flatMap((grupo) => grupo.items.map((i) => i.titulo))).toEqual([
-      "Usuarios", "Ingresos", "Gastos", "Categorías", "Panel financiero", "Reportes", "Seguridad y bitácora",
+      "Panel financiero", "Reportes", "Ingresos", "Gastos", "Categorías", "Usuarios", "Seguridad y bitácora",
     ]);
   });
 

@@ -17,6 +17,6 @@ export default async function Page() {
       { nombre: "contrasena", etiqueta: "Nueva contraseña", tipo: "password", requerido: true },
       { nombre: "confirmacion", etiqueta: "Confirmar contraseña", tipo: "password", requerido: true },
     ]} texto="Actualizar contraseña" /> : <p role="alert" className="text-sm text-peligro">{r.error.mensaje}</p>}
-    <Link className="mt-5 inline-block text-sm text-primario underline" href={r.ok ? rutas.login : rutas.recuperarAcceso}>{r.ok ? "Iniciar sesión" : "Solicitar otro enlace"}</Link>
+    <Link className="mt-5 inline-block text-sm text-acento hover:underline" href={r.ok ? rutas.login : rutas.recuperarAcceso}>{r.ok ? "Iniciar sesión" : "Solicitar otro enlace"}</Link>
   </AuthTemplate>;
 }

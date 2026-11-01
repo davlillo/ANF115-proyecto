@@ -4,22 +4,22 @@ import type * as React from "react";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-input text-sm font-semibold transition-colors disabled:pointer-events-none disabled:opacity-50 [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-pill text-sm font-medium transition-colors disabled:pointer-events-none disabled:border-transparent disabled:bg-superficie-tenue disabled:text-texto-suave [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        primary:
-          "bg-primario text-white shadow-sm hover:bg-primario-hover focus-visible:outline-primario",
+        primary: "bg-primario text-white hover:bg-primario-hover",
         secondary:
           "border border-borde-fuerte bg-superficie text-texto hover:bg-superficie-tenue",
-        ghost: "text-texto hover:bg-superficie-tenue",
-        danger: "bg-peligro text-white hover:bg-peligro/90",
-        link: "text-primario underline-offset-4 hover:underline",
+        ghost: "text-texto-2 hover:bg-superficie-tenue",
+        danger: "bg-peligro-tinte text-peligro hover:bg-peligro/15",
+        "danger-solid": "bg-peligro text-white hover:bg-peligro/90",
+        link: "text-acento underline-offset-4 hover:underline",
       },
       size: {
-        sm: "h-8 px-3 text-xs",
-        md: "h-10 px-4",
-        lg: "h-11 px-6 text-base",
+        sm: "h-8 px-3.5 text-[13px]",
+        md: "h-10 px-[18px]",
+        lg: "h-12 px-6 text-[15px]",
         icon: "size-10 p-0",
       },
     },

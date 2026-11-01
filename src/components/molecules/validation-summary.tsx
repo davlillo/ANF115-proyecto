@@ -1,4 +1,4 @@
-import { AlertTriangle, CheckCircle2 } from "lucide-react";
+import { Banner } from "@/components/molecules/banner";
 import { cn } from "@/lib/utils";
 
 export type ErrorValidacion = {
@@ -24,26 +24,16 @@ export function ValidationSummary({
   }
 
   return (
-    <div
+    <Banner
+      tono={hayErrores ? "danger" : "success"}
       role={hayErrores ? "alert" : "status"}
       aria-live="polite"
-      className={cn(
-        "flex gap-3 rounded-input border px-4 py-3 text-sm",
-        hayErrores
-          ? "border-peligro/30 bg-peligro/5 text-peligro"
-          : "border-exito/30 bg-exito/5 text-exito",
-        className,
-      )}
+      className={cn(className)}
     >
-      {hayErrores ? (
-        <AlertTriangle aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
-      ) : (
-        <CheckCircle2 aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
-      )}
       <div className="space-y-1">
         {hayErrores ? (
           <>
-            <p className="font-semibold">Revisa la informacion:</p>
+            <p className="font-semibold">Revisa la información:</p>
             <ul className="list-disc space-y-0.5 pl-4">
               {errores.map((error) => (
                 <li key={`${error.ruta}-${error.mensaje}`}>
@@ -57,6 +47,6 @@ export function ValidationSummary({
           <p className="font-medium">{mensajeExito}</p>
         )}
       </div>
-    </div>
+    </Banner>
   );
 }

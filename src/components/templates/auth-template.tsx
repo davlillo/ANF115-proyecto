@@ -1,4 +1,4 @@
-﻿import Image from "next/image";
+﻿import { Check, Croissant } from "lucide-react";
 import type * as React from "react";
 import { SourceBadge } from "@/components/molecules/source-badge";
 
@@ -15,8 +15,8 @@ const BENEFICIOS = [
 ] as const;
 
 /**
- * Plantilla de acceso: marca a la izquierda, formulario a la derecha.
- * En pantallas pequenas conserva el encabezado de marca y prioriza el formulario.
+ * Plantilla de acceso: panel de marca oscuro a la izquierda, formulario a la
+ * derecha. En pantallas pequenas se conserva la marca y se prioriza el formulario.
  */
 export function AuthTemplate({
   titulo,
@@ -24,77 +24,62 @@ export function AuthTemplate({
   children,
 }: AuthTemplateProps) {
   return (
-    <div className="min-h-screen bg-fondo lg:grid lg:grid-cols-[1.05fr_1fr]">
-      <section className="relative hidden flex-col justify-between overflow-hidden bg-cafe-900 px-6 py-8 text-crema-50 sm:px-10 lg:flex lg:px-12 lg:py-12">
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute -right-24 -top-24 size-72 rounded-full bg-terracota-600/20 blur-3xl"
-        />
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute -bottom-32 -left-20 size-80 rounded-full bg-dorado-400/10 blur-3xl"
-        />
-
-        <div className="relative">
-          <Image
-            src="/branding/logo-blanco.svg"
-            alt="Panaderia Carlitos"
-            width={560}
-            height={180}
-            unoptimized
-            priority
-            className="h-14 w-auto"
-          />
+    <div className="min-h-screen bg-fondo lg:grid lg:grid-cols-[640px_1fr]">
+      <section className="hidden flex-col justify-between bg-[radial-gradient(ellipse_at_0%_100%,var(--acceso-brillo),var(--tinta)_62%)] px-14 py-14 text-fondo lg:flex">
+        <div className="flex items-center gap-3.5">
+          <span className="flex size-11 items-center justify-center rounded-input bg-fondo text-texto">
+            <Croissant aria-hidden="true" className="size-6" />
+          </span>
+          <span className="flex flex-col leading-tight">
+            <span className="text-xl font-semibold tracking-[-0.02em]">Carlitos</span>
+            <span className="mt-0.5 font-mono text-[11px] uppercase tracking-[0.14em] text-fondo/60">Finanzas</span>
+          </span>
         </div>
 
-        <div className="relative mt-12 max-w-lg space-y-6 lg:mt-0">
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-dorado-400">
+        <div className="max-w-xl space-y-6">
+          <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-acceso-eyebrow">
             Control financiero
           </p>
-          <h1 className="font-serif text-3xl leading-tight text-crema-50 sm:text-4xl">
-            Decisiones con numeros que se pueden explicar.
+          <h1 className="text-[46px] font-medium leading-[1.06] tracking-[-0.035em] text-fondo">
+            Decisiones con números que se pueden explicar.
           </h1>
-          <p className="text-sm leading-relaxed text-crema-100/70">
+          <p className="max-w-md text-base leading-relaxed text-fondo/70">
             Un solo lugar para registrar cobros y pagos, consultar reportes
             y comprender los resultados de la panadería.
           </p>
-          <ul className="space-y-2.5 text-sm text-crema-100/80">
+          <ul className="space-y-3 pt-2 text-[15px] text-fondo/90">
             {BENEFICIOS.map((beneficio) => (
-              <li key={beneficio} className="flex gap-2.5">
+              <li key={beneficio} className="flex items-center gap-3">
                 <span
                   aria-hidden="true"
-                  className="mt-1.5 size-1.5 shrink-0 rounded-full bg-dorado-400"
-                />
+                  className="flex size-7 shrink-0 items-center justify-center rounded-full bg-fondo/10 text-acceso-eyebrow"
+                >
+                  <Check className="size-3.5" />
+                </span>
                 {beneficio}
               </li>
             ))}
           </ul>
         </div>
 
-        <div className="relative mt-12 flex flex-wrap items-center gap-3 text-[11px] text-crema-100/50 lg:mt-0">
-          <SourceBadge className="border-dorado-400/30 bg-white/5 text-crema-100/80" />
+        <div className="flex flex-wrap items-center justify-between gap-3 font-mono text-[11px] text-fondo/50">
+          <SourceBadge className="border-fondo/25 text-fondo/85" />
           <span>Panadería Carlitos &middot; 2026</span>
         </div>
       </section>
 
-      <section className="flex items-center justify-center px-4 py-10 sm:px-8 lg:px-12">
-        <div className="w-full max-w-md">
-          <div className="mb-8 space-y-2 lg:hidden">
-            <Image
-              src="/branding/logo-principal.svg"
-              alt="Panaderia Carlitos"
-              width={560}
-              height={180}
-              unoptimized
-              className="h-12 w-auto"
-            />
+      <section className="flex items-center justify-center px-4 py-10 sm:px-8">
+        <div className="w-full max-w-[400px]">
+          <div className="mb-10 flex items-center gap-3 lg:hidden">
+            <span className="flex size-[34px] items-center justify-center rounded-input bg-primario text-acento-tinte">
+              <Croissant aria-hidden="true" className="size-5" />
+            </span>
+            <span className="text-base font-semibold tracking-[-0.02em]">Carlitos Finanzas</span>
           </div>
 
-          <div className="space-y-2">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primario">
-              Acceso
-            </p>
-            <h2 className="text-2xl text-texto sm:text-3xl">{titulo}</h2>
+          <div className="space-y-3">
+            <p className="etiqueta-mono text-[11px]">Acceso</p>
+            <h2 className="text-[32px] font-medium leading-tight tracking-[-0.03em] text-texto">{titulo}</h2>
             <p className="text-sm leading-relaxed text-texto-suave">
               {descripcion}
             </p>
@@ -102,7 +87,7 @@ export function AuthTemplate({
 
           <div className="mt-8">{children}</div>
 
-          <p className="mt-8 border-t border-borde pt-4 text-[11px] leading-relaxed text-texto-suave">
+          <p className="mt-8 text-center text-xs leading-relaxed text-texto-suave">
             Sistema con datos simulados. El acceso, los perfiles y los permisos
             se resuelven en el servidor con Supabase.
           </p>

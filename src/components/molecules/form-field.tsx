@@ -1,3 +1,4 @@
+import { CircleAlert } from "lucide-react";
 import type * as React from "react";
 import { cn } from "@/lib/utils";
 
@@ -8,6 +9,8 @@ type FormFieldProps = {
   error?: string;
   requerido?: boolean;
   className?: string;
+  /** Contenido a la derecha de la etiqueta (p. ej. enlace de recuperacion). */
+  accesorio?: React.ReactNode;
   children: React.ReactNode;
 };
 
@@ -18,6 +21,7 @@ export function FormField({
   error,
   requerido = false,
   className,
+  accesorio,
   children,
 }: FormFieldProps) {
   const ayudaId = ayuda ? `${id}-ayuda` : undefined;
@@ -25,17 +29,17 @@ export function FormField({
 
   return (
     <div className={cn("flex flex-col gap-1.5", className)}>
-      <label
-        htmlFor={id}
-        className="text-sm font-medium text-texto"
-      >
-        {etiqueta}
-        {requerido ? (
-          <span className="ml-1 text-peligro" aria-hidden="true">
-            *
-          </span>
-        ) : null}
-      </label>
+      <div className="flex items-center justify-between gap-3">
+        <label htmlFor={id} className="text-[13px] font-medium text-texto-2">
+          {etiqueta}
+          {requerido ? (
+            <span className="ml-1 text-peligro" aria-hidden="true">
+              *
+            </span>
+          ) : null}
+        </label>
+        {accesorio}
+      </div>
       {children}
       {ayuda ? (
         <p id={ayudaId} className="text-xs text-texto-suave">
@@ -43,7 +47,8 @@ export function FormField({
         </p>
       ) : null}
       {error ? (
-        <p id={errorId} className="text-xs font-medium text-peligro">
+        <p id={errorId} className="flex items-center gap-1.5 text-xs font-medium text-peligro">
+          <CircleAlert aria-hidden="true" className="size-3.5 shrink-0" />
           {error}
         </p>
       ) : null}

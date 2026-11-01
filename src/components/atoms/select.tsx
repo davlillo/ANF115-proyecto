@@ -1,21 +1,39 @@
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, type LucideIcon } from "lucide-react";
 import type * as React from "react";
 import { cn } from "@/lib/utils";
 
-export type SelectProps = React.ComponentProps<"select">;
+export type SelectProps = React.ComponentProps<"select"> & {
+  icono?: LucideIcon;
+  compacto?: boolean;
+};
 
 /**
  * Select nativo: conserva teclado, lectores de pantalla y comportamiento movil
  * sin agregar una capa de JavaScript en el cascaron.
  */
-export function Select({ className, children, ...props }: SelectProps) {
+export function Select({
+  className,
+  children,
+  icono: Icono,
+  compacto = false,
+  ...props
+}: SelectProps) {
   return (
-    <div className="relative">
+    <div className="relative w-full">
+      {Icono ? (
+        <Icono
+          aria-hidden="true"
+          className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-texto-suave"
+        />
+      ) : null}
       <select
         className={cn(
-          "h-10 w-full appearance-none rounded-input border border-borde-fuerte bg-superficie pl-3 pr-9 text-sm text-texto transition-colors",
-          "focus-visible:border-primario focus-visible:outline-2 focus-visible:outline-primario/25",
-          "disabled:cursor-not-allowed disabled:opacity-60",
+          "w-full appearance-none rounded-input border border-borde-fuerte bg-superficie pr-9 text-sm text-texto transition-colors",
+          compacto ? "h-[38px]" : "h-10",
+          Icono ? "pl-10" : "pl-3.5",
+          "focus-visible:border-[1.5px] focus-visible:border-texto focus-visible:outline-none",
+          "disabled:cursor-not-allowed disabled:bg-superficie-tenue disabled:text-texto-suave",
+          "aria-invalid:border-peligro",
           className,
         )}
         {...props}
@@ -24,7 +42,7 @@ export function Select({ className, children, ...props }: SelectProps) {
       </select>
       <ChevronDown
         aria-hidden="true"
-        className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-texto-suave"
+        className="pointer-events-none absolute right-3.5 top-1/2 size-4 -translate-y-1/2 text-texto-suave"
       />
     </div>
   );

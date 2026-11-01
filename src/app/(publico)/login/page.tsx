@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 export default function LoginPage() {
   return (
     <AuthTemplate
-      titulo="Inicia sesion"
+      titulo="Inicia sesión"
       descripcion="Ingresa con tu cuenta de administrador o empleado. El perfil activo determina el acceso a tus datos."
     >
       <LoginForm accion={iniciarSesionAction} />

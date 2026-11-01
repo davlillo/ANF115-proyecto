@@ -59,7 +59,7 @@ export default async function PeriodosPage({ searchParams }: Props) {
     }
 
     return (
-      <div className="rounded-card border border-peligro/30 bg-superficie p-6 shadow-card">
+      <div className="rounded-card border border-peligro/30 bg-superficie p-6">
         <h1 className="text-lg text-texto">No se pudieron cargar los periodos</h1>
         <p className="mt-2 text-sm text-texto-suave" role="alert">
           {resultado.error.mensaje}
@@ -135,7 +135,7 @@ export default async function PeriodosPage({ searchParams }: Props) {
         <section
           id="nuevo-periodo"
           aria-labelledby="nuevo-periodo-titulo"
-          className="scroll-mt-24 rounded-card border border-borde bg-superficie p-5 shadow-card sm:p-6"
+          className="scroll-mt-24 rounded-card border border-borde bg-superficie p-5 sm:p-6"
         >
           <div className="mb-4 flex items-center gap-2">
             <CalendarPlus aria-hidden="true" className="size-4 text-primario" />

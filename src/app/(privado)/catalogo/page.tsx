@@ -41,7 +41,7 @@ export default async function CatalogoPage({ searchParams }: Props) {
     }
 
     return (
-      <div className="rounded-card border border-peligro/30 bg-superficie p-6 shadow-card">
+      <div className="rounded-card border border-peligro/30 bg-superficie p-6">
         <h1 className="text-lg text-texto">No se pudo cargar el catalogo</h1>
         <p className="mt-2 text-sm text-texto-suave" role="alert">
           {resultado.error.mensaje}
@@ -111,7 +111,7 @@ export default async function CatalogoPage({ searchParams }: Props) {
       </section>
 
       <section aria-labelledby="catalogo-titulo" className="space-y-3">
-        <div className="flex flex-col gap-3 rounded-card border border-borde bg-superficie p-4 shadow-card sm:flex-row sm:items-end sm:justify-between">
+        <div className="flex flex-col gap-3 rounded-card border border-borde bg-superficie p-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h2 id="catalogo-titulo" className="flex items-center gap-2 text-lg text-texto">
               <SlidersHorizontal aria-hidden="true" className="size-4 text-primario" />

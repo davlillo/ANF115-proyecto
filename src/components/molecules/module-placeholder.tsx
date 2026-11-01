@@ -47,7 +47,7 @@ export function ModulePlaceholder({
           descripcion={`La ruta ${pantalla.ruta} ya existe y forma parte del cascaron. Su contenido funcional se construye en la fase ${pantalla.fase}, con contrato, permisos, datos y pruebas propias.`}
         />
 
-        <aside className="space-y-4 rounded-card border border-borde bg-superficie p-5 shadow-card">
+        <aside className="space-y-4 rounded-card border border-borde bg-superficie p-5">
           <div>
             <h2 className="text-sm font-semibold text-texto">
               Checklist de construccion
@@ -69,7 +69,7 @@ export function ModulePlaceholder({
               <li key={item} className="flex gap-2">
                 <span
                   aria-hidden="true"
-                  className="mt-1.5 size-1.5 shrink-0 rounded-full bg-arena-200 ring-2 ring-crema-100"
+                  className="mt-1.5 size-1.5 shrink-0 rounded-full bg-borde-fuerte"
                 />
                 {item}
               </li>

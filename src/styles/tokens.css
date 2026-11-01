@@ -1,54 +1,66 @@
 :root {
-  /* Paleta de marca: docs/Branding_Panaderia_Carlitos_COMPLETO.zip */
-  --cafe-900: #321b13;
-  --cafe-800: #4b281c;
-  --cafe-700: #623521;
-  --terracota-600: #a84d2b;
-  --terracota-500: #bd623e;
-  --crema-50: #fffdf9;
-  --crema-100: #faf3e9;
-  --arena-200: #ebdccd;
-  --dorado-400: #d5a66c;
-  --texto: #2c211d;
-  --muted: #6f6965;
-  --verde: #28785a;
+  /* Paleta base del sistema de diseno (tintas calidas sobre papel) */
+  --tinta: #1c1714;
+  --tinta-2: #3a322d;
+  --etiqueta: #7a716b;
+  --papel: #f6f4f1;
+  --papel-2: #efece8;
+  --papel-3: #fbfaf8;
+  --linea: #e7e2dc;
+  --linea-fuerte: #d4cdc5;
+  --terracota: #a84d2b;
+  --terracota-tinte: #f6e7df;
+  --terracota-suave: #d9a089;
+  --verde: #2f7d5b;
+  --verde-tinte: #e4f0e9;
   --rojo: #b64232;
+  --rojo-tinte: #f8e5e1;
+  --rojo-fila: #fcf6f4;
+  --ambar: #a06a1f;
+  --ambar-tinte: #f5ecd9;
   --azul: #356d95;
+  --azul-tinte: #e2ecf3;
+
+  /* Panel de acceso */
+  --acceso-brillo: #4a2a1c;
+  --acceso-eyebrow: #d9a089;
 
   /* Tokens semanticos */
-  --fondo: var(--crema-50);
-  --fondo-alterno: var(--crema-100);
+  --fondo: var(--papel);
   --superficie: #ffffff;
-  --superficie-tenue: var(--crema-100);
-  --borde: var(--arena-200);
-  --borde-fuerte: #d8c4b0;
-  --texto-principal: var(--texto);
-  --texto-suave: var(--muted);
-  --primario: var(--terracota-600);
-  --primario-hover: var(--terracota-500);
+  --superficie-tenue: var(--papel-2);
+  --superficie-fila: var(--papel-3);
+  --borde: var(--linea);
+  --borde-fuerte: var(--linea-fuerte);
+  --texto-principal: var(--tinta);
+  --texto-secundario: var(--tinta-2);
+  --texto-suave: var(--etiqueta);
+  --primario: var(--tinta);
+  --primario-hover: var(--tinta-2);
   --primario-contraste: #ffffff;
+  --acento: var(--terracota);
+  --acento-tinte: var(--terracota-tinte);
   --exito: var(--verde);
+  --exito-tinte: var(--verde-tinte);
   --peligro: var(--rojo);
-  --advertencia: #a06a1f;
+  --peligro-tinte: var(--rojo-tinte);
+  --peligro-fila: var(--rojo-fila);
+  --advertencia: var(--ambar);
+  --advertencia-tinte: var(--ambar-tinte);
   --info: var(--azul);
+  --info-tinte: var(--azul-tinte);
 
-  --fuente-ui: Arial, "Liberation Sans", sans-serif;
-  --fuente-marca: Georgia, "Times New Roman", serif;
+  --fuente-ui: var(--font-geist), system-ui, sans-serif;
+  --fuente-mono: var(--font-geist-mono), ui-monospace, monospace;
 
-  --radio-card: 20px;
   --radio-input: 10px;
+  --radio-menu: 12px;
+  --radio-card: 18px;
+  --radio-modal: 24px;
   --radio-pill: 999px;
 
-  --sombra-card: 0 8px 30px rgba(50, 27, 19, 0.08);
-  --sombra-elevada: 0 18px 50px rgba(50, 27, 19, 0.14);
+  --sombra-flotante: 0 12px 32px -8px rgba(28, 23, 20, 0.14);
 
-  --espaciado-1: 4px;
-  --espaciado-2: 8px;
-  --espaciado-3: 12px;
-  --espaciado-4: 16px;
-  --espaciado-6: 24px;
-  --espaciado-8: 32px;
-
-  --ancho-sidebar: 280px;
+  --ancho-sidebar: 248px;
   --ancho-contenido: 1400px;
 }

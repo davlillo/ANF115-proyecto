@@ -10,8 +10,8 @@ type MoneyTextProps = {
 
 const TAMANOS = {
   sm: "text-sm",
-  md: "text-base",
-  lg: "text-xl font-semibold",
+  md: "text-sm",
+  lg: "text-xl font-medium",
 } as const;
 
 /**
@@ -33,7 +33,7 @@ export function MoneyText({
   } catch {
     return (
       <span
-        className={cn("tabular-nums text-texto-suave", TAMANOS[tamano], className)}
+        className={cn("font-mono tabular-nums text-texto-suave", TAMANOS[tamano], className)}
         title="Importe no disponible"
       >
         &mdash;
@@ -47,7 +47,7 @@ export function MoneyText({
   return (
     <span
       className={cn(
-        "tabular-nums",
+        "font-mono tabular-nums",
         TAMANOS[tamano],
         negativo && "text-peligro",
         className,

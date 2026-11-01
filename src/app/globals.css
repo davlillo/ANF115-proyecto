@@ -3,38 +3,41 @@
 
 @theme inline {
   --color-fondo: var(--fondo);
-  --color-fondo-alterno: var(--fondo-alterno);
   --color-superficie: var(--superficie);
   --color-superficie-tenue: var(--superficie-tenue);
+  --color-superficie-fila: var(--superficie-fila);
   --color-borde: var(--borde);
   --color-borde-fuerte: var(--borde-fuerte);
   --color-texto: var(--texto-principal);
+  --color-texto-2: var(--texto-secundario);
   --color-texto-suave: var(--texto-suave);
   --color-primario: var(--primario);
   --color-primario-hover: var(--primario-hover);
+  --color-acento: var(--acento);
+  --color-acento-tinte: var(--acento-tinte);
+  --color-acento-suave: var(--terracota-suave);
   --color-exito: var(--exito);
+  --color-exito-tinte: var(--exito-tinte);
   --color-peligro: var(--peligro);
+  --color-peligro-tinte: var(--peligro-tinte);
+  --color-peligro-fila: var(--peligro-fila);
   --color-advertencia: var(--advertencia);
+  --color-advertencia-tinte: var(--advertencia-tinte);
   --color-info: var(--info);
-  --color-cafe-900: var(--cafe-900);
-  --color-cafe-800: var(--cafe-800);
-  --color-cafe-700: var(--cafe-700);
-  --color-terracota-600: var(--terracota-600);
-  --color-terracota-500: var(--terracota-500);
-  --color-crema-50: var(--crema-50);
-  --color-crema-100: var(--crema-100);
-  --color-arena-200: var(--arena-200);
-  --color-dorado-400: var(--dorado-400);
+  --color-info-tinte: var(--info-tinte);
+  --color-acceso-brillo: var(--acceso-brillo);
+  --color-acceso-eyebrow: var(--acceso-eyebrow);
 
   --font-sans: var(--fuente-ui);
-  --font-serif: var(--fuente-marca);
+  --font-mono: var(--fuente-mono);
 
-  --radius-card: var(--radio-card);
   --radius-input: var(--radio-input);
+  --radius-menu: var(--radio-menu);
+  --radius-card: var(--radio-card);
+  --radius-modal: var(--radio-modal);
   --radius-pill: var(--radio-pill);
 
-  --shadow-card: var(--sombra-card);
-  --shadow-elevada: var(--sombra-elevada);
+  --shadow-flotante: var(--sombra-flotante);
 }
 
 @layer base {
@@ -51,26 +54,27 @@
     background-color: var(--fondo);
     color: var(--texto-principal);
     font-family: var(--fuente-ui);
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    font-size: 14px;
     text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
   }
 
   h1,
   h2,
   h3,
   h4 {
-    font-family: var(--fuente-marca);
-    letter-spacing: -0.01em;
+    font-family: var(--fuente-ui);
+    letter-spacing: -0.02em;
   }
 
   :focus-visible {
-    outline: 2px solid var(--primario);
+    outline: 2px solid var(--texto-principal);
     outline-offset: 2px;
   }
 
   ::selection {
-    background-color: color-mix(in srgb, var(--terracota-600) 22%, transparent);
-    color: var(--cafe-900);
+    background-color: var(--acento-tinte);
+    color: var(--texto-principal);
   }
 }
 
@@ -80,9 +84,9 @@
     left: 1rem;
     top: -100%;
     z-index: 100;
-    border-radius: var(--radio-input);
-    background-color: var(--cafe-900);
-    color: var(--crema-50);
+    border-radius: var(--radio-pill);
+    background-color: var(--primario);
+    color: var(--primario-contraste);
     padding: 0.75rem 1rem;
     font-weight: 600;
   }
@@ -91,34 +95,28 @@
     top: 1rem;
   }
 
-  /* Scroll fino para el menu lateral sobre fondo cafe. */
+  /* Etiquetas en mono: eyebrow, encabezados de tabla, etiquetas de KPI. */
+  .etiqueta-mono {
+    font-family: var(--fuente-mono);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--texto-suave);
+  }
+
   .scrollbar-menu {
     scrollbar-width: thin;
-    scrollbar-color: rgba(213, 166, 108, 0.35) transparent;
+    scrollbar-color: var(--borde-fuerte) transparent;
     scrollbar-gutter: stable;
   }
 
-  .scrollbar-menu::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+  /* details/summary sin marcador nativo. */
+  summary.sin-marcador {
+    list-style: none;
   }
 
-  .scrollbar-menu::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  .scrollbar-menu::-webkit-scrollbar-thumb {
-    background-color: rgba(213, 166, 108, 0.35);
-    border-radius: 999px;
-  }
-
-  .scrollbar-menu:hover::-webkit-scrollbar-thumb {
-    background-color: rgba(213, 166, 108, 0.55);
-  }
-
-  .scrollbar-menu::-webkit-scrollbar-button,
-  .scrollbar-menu::-webkit-scrollbar-corner {
+  summary.sin-marcador::-webkit-details-marker {
     display: none;
-    background: transparent;
   }
 }

@@ -26,7 +26,7 @@ export default async function NuevaCuentaPage() {
     }
 
     return (
-      <div className="rounded-card border border-peligro/30 bg-superficie p-6 shadow-card">
+      <div className="rounded-card border border-peligro/30 bg-superficie p-6">
         <h1 className="text-lg text-texto">No se pudo abrir el formulario</h1>
         <p className="mt-2 text-sm text-texto-suave" role="alert">
           {resultado.error.mensaje}
@@ -61,7 +61,7 @@ export default async function NuevaCuentaPage() {
           cargar la clasificacion antes de crear cuentas.
         </p>
       ) : (
-        <div className="max-w-4xl rounded-card border border-borde bg-superficie p-5 shadow-card sm:p-6">
+        <div className="max-w-4xl rounded-card border border-borde bg-superficie p-5 sm:p-6">
           <AccountForm
             accion={guardarCuentaAction}
             opciones={opciones}

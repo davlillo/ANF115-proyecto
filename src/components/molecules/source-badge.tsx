@@ -1,4 +1,3 @@
-import { Badge } from "@/components/atoms/badge";
 import { cn } from "@/lib/utils";
 
 type SourceBadgeProps = {
@@ -18,18 +17,22 @@ export function SourceBadge({
   const esSimulado = origen === "simulado";
 
   return (
-    <Badge
-      variant={esSimulado ? "warning" : "info"}
-      className={cn("font-medium", className)}
+    <span
+      className={cn(
+        "inline-flex items-center gap-2 whitespace-nowrap rounded-pill border border-borde-fuerte px-3 py-1 text-xs font-medium text-texto-2",
+        className,
+      )}
       title={
         esSimulado
           ? "Información de demostración"
           : "Datos declarados como reales por la empresa"
       }
     >
-      {esSimulado
-        ? "Datos simulados"
-        : "Datos reales"}
-    </Badge>
+      <span
+        aria-hidden="true"
+        className={cn("size-1.5 rounded-full", esSimulado ? "bg-advertencia" : "bg-info")}
+      />
+      {esSimulado ? "Datos simulados" : "Datos reales"}
+    </span>
   );
 }

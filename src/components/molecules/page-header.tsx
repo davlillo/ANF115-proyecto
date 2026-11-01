@@ -4,6 +4,8 @@ import { cn } from "@/lib/utils";
 type PageHeaderProps = {
   titulo: string;
   descripcion?: string;
+  /** Linea mono sobre el titulo, p. ej. "OPERACION · COBROS Y PAGOS". */
+  eyebrow?: string;
   acciones?: React.ReactNode;
   contexto?: React.ReactNode;
   className?: string;
@@ -12,6 +14,7 @@ type PageHeaderProps = {
 export function PageHeader({
   titulo,
   descripcion,
+  eyebrow,
   acciones,
   contexto,
   className,
@@ -19,12 +22,15 @@ export function PageHeader({
   return (
     <header
       className={cn(
-        "flex flex-col gap-4 border-b border-borde pb-5 sm:flex-row sm:items-end sm:justify-between",
+        "flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between",
         className,
       )}
     >
-      <div className="space-y-1.5">
-        <h1 className="text-2xl text-texto sm:text-3xl">{titulo}</h1>
+      <div className="min-w-0 space-y-2">
+        {eyebrow ? <p className="etiqueta-mono text-[11px]">{eyebrow}</p> : null}
+        <h1 className="text-[34px] font-medium leading-[1.1] tracking-[-0.03em] text-texto">
+          {titulo}
+        </h1>
         {descripcion ? (
           <p className="max-w-2xl text-sm leading-relaxed text-texto-suave">
             {descripcion}

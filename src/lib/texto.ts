@@ -11,3 +11,12 @@ export function normalizarBusqueda(valor: string | null | undefined): string {
     .replace(/\s+/g, " ")
     .slice(0, 60);
 }
+
+/** Iniciales (maximo dos) de un nombre para avatares. */
+export function iniciales(nombre: string | null | undefined): string {
+  const partes = (nombre ?? "").trim().split(/\s+/).filter(Boolean);
+  if (partes.length === 0) return "?";
+  const primera = partes[0][0];
+  const ultima = partes.length > 1 ? partes[partes.length - 1][0] : "";
+  return `${primera}${ultima}`.toUpperCase();
+}

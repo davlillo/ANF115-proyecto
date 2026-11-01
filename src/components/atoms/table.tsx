@@ -6,7 +6,7 @@ export function Table({
   ...props
 }: React.ComponentProps<"table">) {
   return (
-    <div className="w-full overflow-x-auto rounded-card border border-borde bg-superficie shadow-card">
+    <div className="w-full overflow-x-auto rounded-card border border-borde bg-superficie">
       <table
         className={cn("w-full caption-bottom text-sm", className)}
         {...props}
@@ -21,7 +21,7 @@ export function TableHeader({
 }: React.ComponentProps<"thead">) {
   return (
     <thead
-      className={cn("border-b border-borde bg-superficie-tenue", className)}
+      className={cn("border-b border-borde bg-superficie-fila", className)}
       {...props}
     />
   );
@@ -46,7 +46,7 @@ export function TableRow({
   return (
     <tr
       className={cn(
-        "border-b border-borde/70 transition-colors hover:bg-crema-100/60",
+        "border-b border-borde transition-colors hover:bg-superficie-fila",
         className,
       )}
       {...props}
@@ -61,7 +61,7 @@ export function TableHead({
   return (
     <th
       className={cn(
-        "h-10 px-4 text-left align-middle text-xs font-semibold uppercase tracking-wide text-texto-suave",
+        "etiqueta-mono h-11 px-6 text-left align-middle",
         className,
       )}
       {...props}
@@ -75,7 +75,7 @@ export function TableCell({
 }: React.ComponentProps<"td">) {
   return (
     <td
-      className={cn("px-4 py-3 align-middle text-texto", className)}
+      className={cn("px-6 py-[13px] align-middle text-texto", className)}
       {...props}
     />
   );

@@ -11,6 +11,6 @@ export default function Page() {
     <OperationForm accion={recuperarAccesoAction} operacion="recuperar" campos={[
       { nombre: "correo", etiqueta: "Correo de la cuenta", tipo: "email", requerido: true },
     ]} texto="Enviar enlace" />
-    <Link className="mt-5 inline-block text-sm text-primario underline" href={rutas.login}>Volver al acceso</Link>
+    <Link className="mt-5 inline-block text-sm text-acento hover:underline" href={rutas.login}>Volver al acceso</Link>
   </AuthTemplate>;
 }
