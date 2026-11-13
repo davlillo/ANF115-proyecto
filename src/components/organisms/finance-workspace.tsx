@@ -5,7 +5,6 @@ import {
   ChevronRight,
   Download,
   Percent,
-  Plus,
   ReceiptText,
   Scale,
   TrendingDown,
@@ -14,11 +13,10 @@ import {
 import { formatearUSD } from "@/lib/dinero";
 import { rutas } from "@/config/rutas";
 import { buttonVariants } from "@/components/atoms/button";
-import { Banner } from "@/components/molecules/banner";
 import { EmptyState } from "@/components/molecules/empty-state";
 import { FinanceFilters } from "@/components/molecules/finance-filters";
 import { MetricCard } from "@/components/molecules/metric-card";
-import { PageHeader } from "@/components/molecules/page-header";
+import { FinancialCharts } from "@/components/organisms/financial-charts";
 import { MovementRow } from "@/components/organisms/movement-row";
 import { OperationForm } from "@/components/organisms/operation-form";
 import { cn } from "@/lib/utils";
@@ -53,7 +51,6 @@ export function FinanceWorkspace({ data, modulo, accion }: {
 }) {
   const movimiento = modulo === "ingreso" || modulo === "gasto";
   const titulo = modulo === "panel" ? "Panel financiero" : modulo === "reportes" ? "Reportes" : modulo === "ingreso" ? "Ingresos" : "Gastos";
-  const eyebrow = movimiento ? "Operación · Cobros y pagos" : modulo === "reportes" ? "Resumen · Reportes" : "Resumen · Indicadores";
   const url = modulo === "ingreso" ? rutas.ingresos : modulo === "gasto" ? rutas.gastos : modulo === "reportes" ? rutas.reportes.lista : rutas.dashboard;
   const totalPaginas = Math.max(1, Math.ceil(data.total / 50));
   const paginar = (pagina: number) => {
@@ -74,18 +71,11 @@ export function FinanceWorkspace({ data, modulo, accion }: {
   const tonoMovimiento = modulo === "ingreso" ? "exito" : "acento";
 
   return <div className="space-y-6">
-    <PageHeader
-      eyebrow={eyebrow}
-      titulo={titulo}
-      descripcion={`Cobros y pagos · ${data.perfil.rol === "empleado" ? "Solo tus movimientos" : "Todos los movimientos autorizados"} · Datos simulados`}
-      acciones={<>
-        {modulo === "reportes" && <>
+    <h1 className="sr-only">{titulo}</h1>
+    {modulo === "reportes" && <div className="flex flex-wrap justify-end gap-2">
           <a href={descargar("pdf")} download className={buttonVariants({ variant: "secondary" })}><Download aria-hidden="true" />Descargar PDF</a>
           <a href={descargar("xlsx")} download className={buttonVariants()}><Download aria-hidden="true" />Descargar Excel</a>
-        </>}
-        {movimiento && <a href="#nueva-captura" className={buttonVariants()}><Plus aria-hidden="true" />Registrar {modulo}</a>}
-      </>}
-    />
+    </div>}
 
     {movimiento && <section id="nueva-captura" className="scroll-mt-24 rounded-card border border-borde bg-superficie p-6">
       <header className="mb-6 flex items-start gap-4">
@@ -101,35 +91,16 @@ export function FinanceWorkspace({ data, modulo, accion }: {
         campos={camposMovimiento(data, modulo)} texto={`Guardar ${modulo}`} presentacion="movimiento" />
     </section>}
 
-    <FinanceFilters filtro={data.filtro} categorias={data.categorias} reportes={modulo === "reportes"} />
-    <p className="text-[13px] text-texto-suave">Período: <strong className="font-medium text-texto">{data.filtro.desde} — {data.filtro.hasta}</strong>. El estado filtra el detalle; los indicadores siempre excluyen anulados.</p>
+    <FinanceFilters filtro={data.filtro} categorias={data.categorias} reportes={!movimiento} mostrarEstado={modulo !== "panel"} />
 
-    <section aria-label="Indicadores financieros" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    {!movimiento && <section aria-label="Indicadores financieros" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
       <MetricCard etiqueta="Ingresos totales" valor={formatearUSD(data.resumen.ingresos)} icono={TrendingUp} tonoIcono="success" />
       <MetricCard etiqueta="Gastos totales" valor={formatearUSD(data.resumen.gastos)} icono={TrendingDown} tonoIcono="accent" />
       <MetricCard etiqueta="Resultado financiero" valor={<span className={resultadoNegativo ? "text-peligro" : undefined}>{formatearUSD(data.resumen.resultado)}</span>} icono={Scale} />
       <MetricCard etiqueta="Porcentaje de gastos" valor={data.resumen.porcentaje_gastos === null ? "No aplica" : `${data.resumen.porcentaje_gastos} %`} icono={Percent} />
-    </section>
+    </section>}
 
-    {modulo === "panel" && <div className="grid gap-5 lg:grid-cols-2">
-      <section className="rounded-card border border-borde bg-superficie p-6">
-        <h2 className="text-[17px] font-semibold tracking-[-0.01em]">Ingresos y gastos</h2>
-        <p className="mt-0.5 text-[13px] text-texto-suave">Comparativo del período, solo movimientos vigentes</p>
-        {(["ingresos", "gastos"] as const).map((tipo) => <div key={tipo} className="mt-6">
-          <div className="mb-2 flex justify-between text-sm"><span>{tipo === "ingresos" ? "Ingresos" : "Gastos"}</span><span className="font-mono tabular-nums">{formatearUSD(data.resumen[tipo])}</span></div>
-          <div className="h-1.5 overflow-hidden rounded-pill bg-superficie-tenue"><div className={cn("h-full rounded-pill", tipo === "ingresos" ? "bg-exito" : "bg-acento")} style={{ width: `${data.barras[tipo]}%` }} /></div>
-        </div>)}
-      </section>
-      <section className="rounded-card border border-borde bg-superficie p-6">
-        <h2 className="text-[17px] font-semibold tracking-[-0.01em]">Distribución de gastos</h2>
-        <p className="mt-0.5 text-[13px] text-texto-suave">Por categoría · total {formatearUSD(data.resumen.gastos)}</p>
-        {data.distribucion.length === 0 && <p className="mt-4 text-sm text-texto-suave">No hay gastos vigentes en este período.</p>}
-        {data.distribucion.map((c, indice) => <div key={c.categoria} className="mt-5">
-          <div className="flex justify-between gap-3 text-sm"><span>{c.categoria}</span><span className="font-mono text-[13px] tabular-nums">{formatearUSD(c.monto)} <span className="text-texto-suave">· {c.ancho}%</span></span></div>
-          <div className="mt-2 h-1.5 overflow-hidden rounded-pill bg-superficie-tenue"><div className={cn("h-full rounded-pill", indice === 0 ? "bg-acento" : "bg-acento-suave")} style={{ width: `${c.ancho}%` }} /></div>
-        </div>)}
-      </section>
-    </div>}
+    {modulo === "panel" && <FinancialCharts graficos={data.graficos} granularidad={data.filtro.granularidad} />}
 
     {modulo === "reportes" && <section className="space-y-3">
       <h2 className="text-[17px] font-semibold tracking-[-0.01em]">Resumen {data.filtro.granularidad === "dia" ? "diario" : data.filtro.granularidad === "mes" ? "mensual" : "anual"}</h2>
@@ -150,7 +121,7 @@ export function FinanceWorkspace({ data, modulo, accion }: {
         </tr>)}</tbody></table></div></div>
     </section>}
 
-    <section className="space-y-3">
+    {modulo !== "panel" && <section className="space-y-3">
       <header>
         <h2 className="text-[17px] font-semibold tracking-[-0.01em]">Detalle de movimientos</h2>
         <p className="mt-0.5 text-[13px] text-texto-suave">50 registros por página. Los anulados conservan su historial, pero no forman parte de los indicadores.</p>
@@ -185,7 +156,6 @@ export function FinanceWorkspace({ data, modulo, accion }: {
             </div>
           </nav>
         </div>}
-    </section>
-    <Banner tono="info">El resultado operativo no equivale automáticamente a utilidad contable ni a saldo bancario.</Banner>
+    </section>}
   </div>;
 }

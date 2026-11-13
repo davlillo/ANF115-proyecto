@@ -1,4 +1,4 @@
-import { BookOpen, CircleDollarSign, KeyRound, Pencil, Plus, ReceiptText, Search, ShieldCheck, SlidersHorizontal, User, UserPlus, UserX } from "lucide-react";
+import { CircleDollarSign, ReceiptText, Search, ShieldCheck, SlidersHorizontal, User, UserPlus } from "lucide-react";
 import Link from "next/link";
 import { Avatar } from "@/components/atoms/avatar";
 import { Badge } from "@/components/atoms/badge";
@@ -6,15 +6,14 @@ import { buttonVariants } from "@/components/atoms/button";
 import { Input } from "@/components/atoms/input";
 import { Select } from "@/components/atoms/select";
 import { StatusDot } from "@/components/atoms/status-dot";
-import { Banner } from "@/components/molecules/banner";
 import { CategoryStatusSwitch } from "@/components/molecules/category-status-switch";
 import { EmptyState } from "@/components/molecules/empty-state";
-import { PageHeader } from "@/components/molecules/page-header";
-import { UserStatusSwitch } from "@/components/molecules/user-status-switch";
-import { AuditRow } from "@/components/organisms/audit-row";
-import { UserActionsMenu } from "@/components/organisms/users/user-actions-menu";
+import { AuditTable } from "@/components/organisms/audit-table";
+import { CategoryDialog } from "@/components/organisms/categories/category-dialog";
+import { UserActionsLink } from "@/components/organisms/users/user-actions-link";
 import { OperationForm } from "./operation-form";
-import { describirAccion, describirActor, describirEntidad, formatearInstante, resumirCambio } from "@/lib/bitacora";
+import { rutas } from "@/config/rutas";
+import { LONGITUD_MINIMA_CONTRASENA } from "@/config/seguridad";
 import { cn } from "@/lib/utils";
 import type { AccionOperacion, Categoria, Perfil, PerfilAdministrado, EventoBitacoraVista, CampoOperacion } from "@/types/finanzas";
 
@@ -26,83 +25,40 @@ function fechaCorta(valor: string): string {
   }).format(new Date(valor));
 }
 
-function camposCategoria(c?: Categoria): CampoOperacion[] {
+function camposUsuario(): CampoOperacion[] {
   return [
-    { nombre: "codigo", etiqueta: "Código (I01 / G01)", valor: c?.codigo, requerido: true },
-    { nombre: "nombre", etiqueta: "Nombre", valor: c?.nombre, requerido: true, maxLength: 100 },
-    { nombre: "tipo", etiqueta: "Tipo", tipo: "select", valor: c?.tipo ?? "ingreso", opciones: [{ valor: "ingreso", etiqueta: "Ingreso" }, { valor: "gasto", etiqueta: "Gasto" }] },
-    { nombre: "descripcion", etiqueta: "Descripción", tipo: "textarea", valor: c?.descripcion, maxLength: 500 },
-  ];
-}
-
-function camposUsuario(p?: Perfil): CampoOperacion[] {
-  return [
-    { nombre: "nombre", etiqueta: "Nombre", valor: p?.nombre, requerido: true, maxLength: 120 },
-    ...(!p ? [
-      { nombre: "correo", etiqueta: "Correo", tipo: "email" as const, requerido: true },
-      { nombre: "contrasena", etiqueta: "Contraseña (mínimo 12 caracteres)", tipo: "password" as const, requerido: true },
-    ] : []),
-    { nombre: "rol", etiqueta: "Rol", tipo: "select", valor: p?.rol ?? "empleado", opciones: [{ valor: "empleado", etiqueta: "Empleado" }, { valor: "administrador", etiqueta: "Administrador" }] },
-    { nombre: "activo", etiqueta: "Estado", tipo: "select", valor: p?.activo ? "true" : "false", opciones: [{ valor: "false", etiqueta: "Inactivo" }, { valor: "true", etiqueta: "Activo" }] },
+    { nombre: "nombre", etiqueta: "Nombre", requerido: true, maxLength: 120 },
+    { nombre: "correo", etiqueta: "Correo", tipo: "email", requerido: true },
+    { nombre: "contrasena", etiqueta: `Contraseña (mínimo ${LONGITUD_MINIMA_CONTRASENA} caracteres)`, tipo: "password", requerido: true, minLength: LONGITUD_MINIMA_CONTRASENA, maxLength: 128 },
+    { nombre: "rol", etiqueta: "Rol", tipo: "select", valor: "empleado", opciones: [{ valor: "empleado", etiqueta: "Empleado" }, { valor: "administrador", etiqueta: "Administrador" }] },
   ];
 }
 
 const ETIQUETA = "flex min-w-0 flex-col gap-1.5 text-xs text-texto-suave";
 const RESUMEN_BOTON = `${buttonVariants()} sin-marcador ml-auto w-fit cursor-pointer`;
 
-const CONTROLES = [
-  { icono: UserX, titulo: "Cuentas inactivas", texto: "Las cuentas inactivas no operan." },
-  { icono: User, titulo: "Empleados", texto: "El empleado accede solo a sus movimientos." },
-  { icono: ShieldCheck, titulo: "Administradores", texto: "El administrador gestiona usuarios y categorías." },
-  { icono: KeyRound, titulo: "Contraseñas y sesión", texto: "Las contraseñas y los eventos de sesión se administran en Auth, no en esta bitácora." },
-] as const;
+const TITULOS = { usuarios: "Usuarios", categorias: "Categorías", bitacora: "Seguridad y bitácora" } as const;
 
-const ENCABEZADOS = {
-  usuarios: { eyebrow: "Administración · Accesos", titulo: "Usuarios", descripcion: "Identidades administradas en Supabase Auth. La desactivación bloquea el acceso operativo." },
-  categorias: { eyebrow: "Operación · Clasificación", titulo: "Categorías", descripcion: "Clasificación de cobros y pagos. Desactivar conserva el historial." },
-  bitacora: { eyebrow: "Administración · Auditoría", titulo: "Seguridad y bitácora", descripcion: "Registro de cambios confirmados. Solo administradores activos pueden consultar este historial." },
-} as const;
-
-export function AdministrationWorkspace({ modulo, perfil, categorias, perfiles, eventos, accion, tipoCategoria, estadoCategoria, filtrosUsuarios }: {
+export function AdministrationWorkspace({ modulo, perfil, categorias, perfiles, eventos, accion, tipoCategoria, estadoCategoria, filtrosUsuarios, vistaSeguridad = "usuarios" }: {
   modulo: "usuarios" | "categorias" | "bitacora"; perfil: Perfil; categorias: Categoria[];
   perfiles: PerfilAdministrado[]; eventos: EventoBitacoraVista[]; accion: AccionOperacion;
   tipoCategoria?: "ingreso" | "gasto";
   estadoCategoria?: "activa" | "inactiva";
   filtrosUsuarios?: { buscar?: string; rol?: "administrador" | "empleado"; activo?: boolean };
+  vistaSeguridad?: "usuarios" | "bitacora";
 }) {
   const admin = perfil.rol === "administrador";
-  const encabezado = ENCABEZADOS[modulo];
+  const seguridad = modulo === "bitacora";
   return <div className="space-y-6">
-    <PageHeader eyebrow={encabezado.eyebrow} titulo={encabezado.titulo} descripcion={encabezado.descripcion} />
-    {modulo === "bitacora" ? <>
-      <section className="rounded-card border border-borde bg-superficie p-6">
-        <h2 className="text-[17px] font-semibold tracking-[-0.01em]">Controles de acceso</h2>
-        <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          {CONTROLES.map(({ icono: Icono, titulo, texto }) => <div key={titulo} className="rounded-input bg-superficie-fila p-4">
-            <span className="flex size-8 items-center justify-center rounded-input border border-borde bg-superficie text-texto-2"><Icono aria-hidden="true" className="size-4" /></span>
-            <h3 className="mt-4 text-sm font-semibold">{titulo}</h3>
-            <p className="mt-1 text-[13px] leading-relaxed text-texto-suave">{texto}</p>
-          </div>)}
-        </div>
-      </section>
-      <div className="overflow-hidden rounded-card border border-borde bg-superficie">
-        <div className="overflow-x-auto"><table className="w-full text-sm">
-          <thead className="border-b border-borde bg-superficie-fila"><tr className="text-left">
-            {["Fecha y hora", "Acción", "Entidad", "Actor"].map((t) => <th key={t} className="etiqueta-mono h-11 px-6 font-medium">{t}</th>)}
-            <th className="etiqueta-mono h-11 px-6 text-right font-medium">Detalle</th>
-          </tr></thead>
-          <tbody className="[&_tr:last-child]:border-0">{eventos.map((e) => <AuditRow key={e.id}
-            fechaHoraIso={e.fecha_hora}
-            fechaHora={formatearInstante(e.fecha_hora)}
-            accion={describirAccion(e.accion)}
-            entidad={describirEntidad(e.entidad)}
-            actor={describirActor(e.actor_nombre, e.actor_rol, e.actor_id)}
-            resumen={resumirCambio(e.accion, e.entidad, e.antes, e.despues)}
-            motivo={e.motivo}
-            datosTecnicos={JSON.stringify({ antes: e.antes, despues: e.despues }, null, 2)} />)}</tbody>
-        </table></div>
-        {eventos.length === 0 && <p className="p-6 text-sm text-texto-suave">No hay eventos en esta página.</p>}
-      </div>
+    <h1 className="sr-only">{TITULOS[modulo]}</h1>
+    {seguridad && <nav aria-label="Secciones de seguridad" className="flex flex-wrap gap-2">
+      <Link href={rutas.auditoria} aria-current={vistaSeguridad === "usuarios" ? "page" : undefined}
+        className={buttonVariants({ variant: vistaSeguridad === "usuarios" ? "primary" : "secondary" })}>Acceso de usuarios</Link>
+      <Link href={`${rutas.auditoria}?vista=bitacora`} aria-current={vistaSeguridad === "bitacora" ? "page" : undefined}
+        className={buttonVariants({ variant: vistaSeguridad === "bitacora" ? "primary" : "secondary" })}>Bitácora general</Link>
+    </nav>}
+    {seguridad && vistaSeguridad === "bitacora" ? <>
+      <AuditTable eventos={eventos} />
     </> : <>
       {admin && modulo === "usuarios" && <details className="group">
         <summary className={RESUMEN_BOTON}>
@@ -112,16 +68,7 @@ export function AdministrationWorkspace({ modulo, perfil, categorias, perfiles, 
           <OperationForm accion={accion} operacion="usuario" campos={camposUsuario()} texto="Crear cuenta" />
         </div>
       </details>}
-      {admin && modulo === "categorias" && <details className="group">
-        <summary className={RESUMEN_BOTON}>
-          <Plus aria-hidden="true" />Nueva categoría
-        </summary>
-        <div className="mt-4 rounded-card border border-borde bg-superficie p-6">
-          <h2 className="mb-4 text-[17px] font-semibold tracking-[-0.01em]">Nueva categoría</h2>
-          <OperationForm accion={accion} operacion="categoria" ocultos={{ activo: "true" }} campos={camposCategoria()} texto="Crear categoría" />
-        </div>
-      </details>}
-      {modulo === "usuarios" && <form method="get" className="flex flex-wrap items-end gap-4 rounded-card border border-borde bg-superficie px-5 py-4">
+      {(modulo === "usuarios" || seguridad) && <form method="get" className="flex flex-wrap items-end gap-4 rounded-card border border-borde bg-superficie px-5 py-4">
         <label className={`${ETIQUETA} w-full sm:min-w-[240px] sm:flex-1`}>Buscar
           <Input compacto icono={Search} name="buscar" defaultValue={filtrosUsuarios?.buscar ?? ""} placeholder="Nombre, correo o identificador" />
         </label>
@@ -132,16 +79,12 @@ export function AdministrationWorkspace({ modulo, perfil, categorias, perfiles, 
           <option value="">Todos</option><option value="activo">Activos</option><option value="inactivo">Inactivos</option>
         </Select></label>
         <div className="flex items-center gap-2">
-          <Link href="/usuarios" className={buttonVariants({ variant: "ghost" })}>Limpiar</Link>
+          <Link href={seguridad ? rutas.auditoria : rutas.usuarios.lista} className={buttonVariants({ variant: "ghost" })}>Limpiar</Link>
           <button className={buttonVariants()}><SlidersHorizontal aria-hidden="true" />Filtrar</button>
         </div>
       </form>}
-      {modulo === "categorias" && <>
-        <Banner tono="info" icono={BookOpen} className="px-5 py-4">
-          <h2 className="text-sm font-semibold">Guía para clasificar movimientos</h2>
-          <p className="mt-1 max-w-4xl text-[13px]">Elige una categoría de ingreso cuando registres dinero recibido por ventas. Usa una categoría de gasto cuando registres un pago realizado por la operación. Estas son categorías operativas, no cuentas contables.</p>
-        </Banner>
-        <form className="flex flex-wrap items-end gap-4 rounded-card border border-borde bg-superficie px-5 py-4" method="get">
+      {modulo === "categorias" && <div className="flex flex-wrap items-end gap-4 rounded-card border border-borde bg-superficie px-5 py-4">
+        <form className="flex flex-1 flex-wrap items-end gap-4" method="get">
           <label className={`${ETIQUETA} w-full sm:w-[220px]`}>Mostrar
             <Select compacto name="tipo" defaultValue={tipoCategoria ?? ""}>
               <option value="">Ingresos y gastos</option><option value="ingreso">Solo ingresos</option><option value="gasto">Solo gastos</option>
@@ -153,9 +96,10 @@ export function AdministrationWorkspace({ modulo, perfil, categorias, perfiles, 
             </Select>
           </label>}
           <button className={buttonVariants()}><SlidersHorizontal aria-hidden="true" />Aplicar filtro</button>
-          <p className="ml-auto text-[13px] text-texto-suave">{categorias.length} {categorias.length === 1 ? "categoría" : "categorías"}</p>
         </form>
-      </>}
+        <span className="pb-3 text-[13px] text-texto-suave">{categorias.length} {categorias.length === 1 ? "categoría" : "categorías"}</span>
+        {admin && <CategoryDialog accion={accion} />}
+      </div>}
       {modulo === "categorias" ? <section aria-label="Categorías disponibles" className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
         {categorias.map((c) => {
           const ingreso = c.tipo === "ingreso";
@@ -170,19 +114,10 @@ export function AdministrationWorkspace({ modulo, perfil, categorias, perfiles, 
               </div>
             </div>
             <p className={cn("mt-5 font-mono text-xs", ingreso ? "text-exito" : "text-acento")}>{c.codigo}</p>
-            <h3 className={cn("mt-1 text-lg font-medium tracking-[-0.02em]", !c.activo && "text-texto-suave")}>{c.nombre}</h3>
+            <h2 className={cn("mt-1 text-lg font-medium tracking-[-0.02em]", !c.activo && "text-texto-suave")}>{c.nombre}</h2>
             <p className="mt-2 min-h-10 text-sm leading-relaxed text-texto-suave">{c.descripcion || "Sin descripción de uso disponible."}</p>
             {admin && <div className="relative mt-5 border-t border-borde pt-4">
-              <details className="w-full">
-                <summary className={`${buttonVariants({ variant: "ghost", size: "sm" })} sin-marcador w-fit cursor-pointer`}>
-                  <Pencil aria-hidden="true" />Editar
-                </summary>
-                <div className="mt-4"><p className="mb-4 max-w-sm text-xs leading-relaxed text-texto-suave">Después de usar una categoría, su código y tipo no se pueden cambiar.</p>
-                  <OperationForm accion={accion} operacion="categoria"
-                    ocultos={{ id: c.id, versionEsperada: c.actualizado_en, activo: String(c.activo) }}
-                    campos={camposCategoria(c)} requiereCambios unaColumna />
-                </div>
-              </details>
+              <CategoryDialog categoria={c} accion={accion} />
               <div className="absolute right-0 top-4 flex h-8 items-center"><CategoryStatusSwitch categoria={c} accion={accion} /></div>
             </div>}
           </article>;
@@ -202,9 +137,9 @@ export function AdministrationWorkspace({ modulo, perfil, categorias, perfiles, 
             <td className="px-6 py-[13px]"><Badge variant={usuario.rol === "administrador" ? "info" : "neutral"}>
               {usuario.rol === "administrador" ? <ShieldCheck aria-hidden="true" /> : <User aria-hidden="true" />}
               {usuario.rol === "administrador" ? "Administrador" : "Empleado"}</Badge></td>
-            <td className="px-6 py-[13px]"><UserStatusSwitch usuario={usuario} accion={accion} /></td>
+            <td className="px-6 py-[13px]"><StatusDot tono={usuario.activo ? "success" : "neutral"}>{usuario.activo ? "Activo" : "Inactivo"}</StatusDot></td>
             <td className="whitespace-nowrap px-6 py-[13px] font-mono text-xs text-texto-2">{fechaCorta(usuario.creado_en)}</td>
-            <td className="px-6 py-[13px]"><UserActionsMenu usuario={usuario} eventos={eventos.filter((evento) => evento.actor_id === usuario.usuario_id)} accion={accion} /></td>
+            <td className="px-6 py-[13px] text-right"><UserActionsLink usuario={usuario} seguridad={seguridad} /></td>
           </tr>)}</tbody>
         </table></div>
         {perfiles.length === 0 && <p className="p-8 text-center text-sm text-texto-suave">No hay usuarios que coincidan con los filtros.</p>}

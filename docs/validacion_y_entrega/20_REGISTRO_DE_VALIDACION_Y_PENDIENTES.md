@@ -1,5 +1,67 @@
 # 20. Registro de validación y pendientes
 
+## Observaciones de `cambios_anf.docx` — 12/11/2026
+
+Se revisaron el texto y las doce imágenes del Word original, sin modificarlo.
+SHA-256: `1dadc18e777b322b373dab80cf10efc27f4e7716d894d9bc182f656b1da30008`.
+Las diecisiete observaciones y sus decisiones están en
+[22](../implementacion/22_RECONSTRUCCION_SIETE_MODULOS.md#observaciones-del-word--12112026).
+Base de revisión: `e201529e27c76043cac73a56f55de8c51f334879`, más cambios locales
+de esta tarea; no se creó commit ni se publicó una rama.
+
+| Evidencia | Ejecución real | Resultado |
+| --- | --- | --- |
+| EV-OBS01 | `npm run lint`, `npm run typecheck`, `git diff --check` | Correctos, sin desactivar reglas de capas. |
+| EV-OBS02 | `npm run test:unit` | 91 pruebas en 14 archivos. Nuevas regresiones: cuatro series, pérdidas, importes grandes, porcentaje nulo, texto SVG del HTML inicial, contraseñas de ocho caracteres, proxy y separación/autorización de operaciones de usuario. |
+| EV-OBS03 | `npm run build` con Next 16.4.2/Turbopack, mismos archivos y dependencias en copia temporal C: NTFS | Compilación y TypeScript correctos, 49 rutas; incluida `/auditoria/usuarios/[id]`. El intento en E: exFAT falla al crear una junction para `jspdf`: limitación del disco, no se cambió el bundler para ocultarla. |
+| EV-OBS04 | `tests/integration/siete-modulos.sql`, `ON_ERROR_STOP=1`, Supabase local | 44 comprobaciones correctas y ROLLBACK: RLS, propiedad, idempotencia, revisión, cálculos, último administrador e inmutabilidad de bitácora. |
+| EV-OBS05 | `npm run test:api` | Sesiones Auth reales, concurrencia (una actualización confirma y otra devuelve `40001`), importes textuales y aislamiento entre propietarios correctos. Movimientos de prueba anulados. |
+| EV-OBS06 | Inspección de Auth local y reinicio exclusivo de Carlitos con `supabase stop`/`start`, preservando respaldo | `GOTRUE_PASSWORD_MIN_LENGTH=8`. No se aplicaron migraciones, no se ejecutó `db reset` y no se detuvieron otros proyectos. |
+| EV-OBS07 | `npm run test:e2e`, Chromium contra `next start`; pasada adicional en desarrollo con `E2E_ORIGIN=http://localhost:3001` | Recorrido completo de administrador y empleado correcto, incluidos cuatro gráficos, edición de rol, desactivación de una sesión existente, formularios consecutivos, modales, permisos y vista móvil. Sin errores JavaScript capturados. La ejecución de producción interrumpida por el reinicio se completó después de recuperar el entorno, sin repetir cambios de aplicación. |
+| EV-OBS08 | `npm run test:recovery`, Mailpit y Auth locales | Correo real local, restablecimiento con una contraseña de ocho caracteres, login con esa contraseña y rechazo de reutilización del enlace correctos. Se restauró la contraseña demo al terminar. |
+| EV-OBS09 | Diagnóstico local `diagnostico-estado-ui.mjs` contra producción | Ocho ciclos correctos de activación/desactivación, cuatro por rol: la UI confirma el estado persistido, la sesión de navegador existente deja de ver indicadores y la misma sesión API recibe `42501` al pedir el reporte. Sin errores JavaScript. Solo se desactivaron las cuentas simuladas exactas del diagnóstico. |
+
+La copia de verificación está en
+`%LOCALAPPDATA%/Temp/opencode/anf-validacion-20261112`; no sustituye ni mueve el
+repositorio de E:. Para compilar normalmente en Windows se necesita una unidad
+que admita los enlaces de Turbopack, como NTFS.
+
+Incidencias conservadas: el primer ensayo SQL suponía 26 categorías activas,
+pero `G10` ya estaba inactiva. Se corrigió la prueba para comprobar exactamente
+el conjunto activo vigente, sin reactivar datos del usuario. El primer E2E de
+esta revisión confirmó alta consecutiva, limpieza, errores y anulación para
+ingresos/gastos administrativos, y luego se detuvo por un selector de prueba
+ambiguo entre el botón y el título «Registrar usuario». Se hizo explícito el
+selector de `summary`.
+
+La revisión visual detectó además que `appearance-none` en la capa utilities
+anulaba `base-select` en components. Se corrigió la cascada y la regresión exige
+el valor computado del selector, no solo la existencia de estilos del picker.
+
+Las primeras pasadas completas detectaron dos errores React `#418` al recargar
+el Panel con datos. El diagnóstico en desarrollo localizó el desajuste en
+`<title>` de los SVG: React emitía el título vacío al recibir varios hijos de
+texto. Se usa una única cadena interpolada. La regresión SSR falló antes del
+cambio y pasó después; la navegación y recarga con gráficos poblados pasan para
+ambos roles. No se suprimieron avisos ni se relajó la aserción de errores E2E.
+También se corrigieron la redirección heredada que bloqueaba `/usuarios/[id]`
+y el reset nativo que desincronizaba los selectores controlados tras guardar.
+
+La espera intermitente de desactivación era una carrera de la prueba: el nombre
+no exacto «Activar» también coincidía con «Desactivar». El diagnóstico reprodujo
+esa coincidencia antes de pulsar el interruptor. Se exige `exact: true` en los
+selectores de estado de usuarios y categorías; no se modificaron ni relajaron
+la autorización o las comprobaciones de denegación. La pasada completa final y
+los ocho ciclos específicos pasan después del cambio.
+
+Las capturas finales están en `test-results/revision-word-20261112/` (excluido de
+Git): login adaptable, Panel vacío/con datos por rol, selector, modal de
+categorías, edición/seguridad de usuario, acceso desactivado y bitácora. Se
+revisaron visualmente. Los archivos de aplicación, pruebas y configuración de
+la copia NTFS se compararon por SHA-256 con E: antes de cerrar la revisión.
+No quedaron movimientos simulados vigentes ni cuentas de prueba activas; `G10`
+conserva su estado inactivo previo. No se crearon commits, ramas ni publicaciones.
+
 ## Corte vigente: reconstrucción de siete módulos — 25/10/2026
 
 La evidencia de esta sección sustituye el estado inicial del 19/10 para la

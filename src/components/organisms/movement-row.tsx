@@ -1,7 +1,7 @@
 "use client";
 
 import { ArrowDownRight, ArrowUpRight, Ban, Clock3, Eye, TriangleAlert, UserRound } from "lucide-react";
-import { Fragment, useId, useState } from "react";
+import { Fragment, useId, useRef, useState } from "react";
 import { Badge } from "@/components/atoms/badge";
 import { Button } from "@/components/atoms/button";
 import { StatusDot } from "@/components/atoms/status-dot";
@@ -39,6 +39,7 @@ export function MovementRow({
 }: MovementRowProps) {
   const [abierto, setAbierto] = useState(false);
   const panelId = useId();
+  const botonRef = useRef<HTMLButtonElement>(null);
   const anulado = m.estado === "anulado";
   const esIngreso = m.tipo === "ingreso";
   const columnas = 5 + (mostrarTipo ? 1 : 0) + (conAcciones ? 1 : 0);
@@ -72,6 +73,7 @@ export function MovementRow({
         </td>
         {conAcciones && <td className="px-6 py-[13px] text-right">
           {hayAccion ? <Button
+            ref={botonRef}
             variant={abierto ? "secondary" : "ghost"} size="sm"
             aria-expanded={abierto} aria-controls={panelId}
             onClick={() => setAbierto((actual) => !actual)}
@@ -102,6 +104,7 @@ export function MovementRow({
             </div>
             <OperationForm accion={accion} operacion="anular" ocultos={{ tipo: m.tipo, id: m.id, revision: String(m.revision) }}
               presentacion="anulacion"
+              alConfirmar={() => { setAbierto(false); botonRef.current?.focus(); }}
               campos={[{ nombre: "motivo", etiqueta: "Motivo de anulación (mínimo 5 caracteres)", requerido: true, tipo: "textarea", maxLength: 500 }]} texto="Confirmar anulación" />
           </div>}
         </td>

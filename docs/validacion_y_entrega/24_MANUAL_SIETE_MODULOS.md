@@ -20,7 +20,8 @@ limita los envíos; esperar antes de repetir una solicitud.
    opcional. El importe debe ser positivo y tener como máximo dos decimales.
 3. Guardar y esperar «Operación confirmada». Un error no confirma el guardado;
    los campos se conservan para corregirlos.
-4. Para otra captura independiente, elegir «Continuar con una nueva operación».
+4. Tras confirmar, el formulario se limpia automáticamente y queda listo para
+   otra captura, con fecha sugerida y una solicitud nueva.
 
 La misma solicitud de alta se conserva al reintentar; no se crean duplicados.
 Una categoría inactiva no puede clasificarse en una nueva captura.
@@ -32,6 +33,8 @@ registro se conserva, deja de formar parte de los indicadores y no admite otra
 edición ni reactivación. La interfaz no ofrece corrección después del alta. El
 empleado solo puede anular sus movimientos; el administrador puede anular los
 movimientos autorizados del negocio.
+Después de confirmar se cierra el desplegable. «Ver detalle» permite consultar
+el motivo, autor e instante de anulación cuando sea necesario.
 
 ## Categorías
 
@@ -43,37 +46,42 @@ ingresos o solo gastos. Cada tarjeta explica qué
 cobro o pago corresponde a la categoría; se trata del catálogo operativo de 26
 categorías, no del catálogo contable histórico de 47 cuentas. El administrador
 también puede filtrar activas o inactivas. El interruptor de cada tarjeta activa
-o desactiva la categoría mediante una operación auditada. La edición se abre con
-el icono de lápiz y no permite guardar si ningún campo cambió.
+o desactiva la categoría mediante una operación auditada. «Nueva categoría» está
+en la barra de filtros. El alta y «Editar» abren un modal centrado; la edición no
+permite guardar si ningún campo cambió. El modal se cierra después del éxito.
 
 ## Usuarios
 
-Solo un administrador activo puede crear cuentas y modificar nombre, rol o
-estado. Las cuentas se crean mediante Supabase Auth desde el servidor, nunca
-con claves administrativas en el navegador. Por defecto quedan como empleados
-inactivos hasta completar la asignación autorizada.
+Solo un administrador activo puede crear cuentas y modificar nombre o rol.
+Las cuentas se crean mediante Supabase Auth desde el servidor, nunca con claves
+administrativas en el navegador. La contraseña debe tener entre 8 y 128
+caracteres. El alta completada activa la cuenta con el rol elegido.
 
-La tabla separa responsabilidades: el interruptor de Estado activa o desactiva
-el acceso; el menú de tres puntos permite editar nombre/rol, consultar los
-detalles de identidad y revisar la actividad disponible en bitácora. No existe
-«Eliminar usuario»: el perfil se conserva para mantener la trazabilidad.
+La tabla permite buscar y filtrar por rol/estado. El botón «Gestionar» abre
+`/usuarios/[id]` para editar nombre y rol, sin menú de tres puntos ni interruptor
+de estado. La identidad, actividad y activación/desactivación se consultan en
+Seguridad y bitácora. No existe «Eliminar usuario».
 
 En Seguridad y bitácora, la columna Actor muestra el nombre registrado de la
 persona. Los eventos sin actor humano se identifican como «Sistema»; el UUID se
 mantiene únicamente como referencia técnica interna.
 
 Si falla la asignación después de crear la identidad, el mensaje indica que
-quedó pendiente: buscarla en Usuarios y completar su activación, sin repetir el
-alta. El sistema impide desactivar o degradar al último administrador activo.
+quedó pendiente: buscarla en Seguridad y bitácora y completar su activación, sin
+repetir el alta. El sistema impide desactivar o degradar al último administrador
+activo.
 
 ## Panel y reportes
 
-Aplicar fechas inicial/final, categoría y estado del detalle. El rango incluye
+Aplicar fechas inicial/final, categoría y agrupación temporal. El rango incluye
 ambos extremos y no puede superar una diferencia de 3660 días. «Vigentes» y
 «Anulados» filtran el listado paginado; no alteran los indicadores, que excluyen
-siempre los anulados. El panel presenta cuatro indicadores y gráficos; Reportes
-añade agrupaciones por día, mes o año. La paginación no cambia los totales del
-filtro financiero. Se completan períodos vacíos.
+siempre los anulados. El panel presenta cuatro indicadores y cuatro gráficos:
+ingresos, gastos, resultado y porcentaje de gastos por día, mes o año. «Ver datos
+del gráfico» muestra sus valores exactos. No tiene tabla de movimientos; para
+consultar registros individuales, usar Ingresos, Gastos o Reportes. Solo Panel y
+Reportes muestran las tarjetas de indicadores. La paginación no cambia los
+totales del filtro financiero. Se completan períodos vacíos.
 
 Si ingresos = 0, el porcentaje de gastos es «No aplica»; no es cero por defecto.
 Un resultado negativo se muestra con signo. El resultado representa cobros menos
@@ -83,8 +91,14 @@ No hay exportación PDF/XLSX habilitada. Es complementaria según la guía.
 
 ## Seguridad y bitácora
 
-El administrador consulta actor, instante con zona horaria, entidad, acción y
-valores antes/después. Los eventos se crean en la misma transacción del cambio.
+«Acceso de usuarios» permite buscar una cuenta y abrir «Ver detalle y actividad»
+en `/auditoria/usuarios/[id]`: identidad, rol, estado de acceso y actividad de ese
+actor, con paginación. El interruptor activa o desactiva la cuenta. Una sesión
+ya iniciada tampoco puede operar una vez desactivada.
+
+En «Bitácora general», el administrador consulta actor, instante con zona
+horaria, entidad, acción y valores antes/después. Los eventos se crean en la misma
+transacción del cambio.
 No se editan ni se borran. La tabla no contiene contraseñas ni tokens. Los
 eventos de sesión pertenecen a Auth, no se presentan como eventos de esta tabla.
 

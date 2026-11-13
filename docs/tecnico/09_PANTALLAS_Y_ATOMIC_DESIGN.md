@@ -4,6 +4,17 @@
 **Versión documental:** 0.1 · **Fecha:** 19 de octubre de 2026  
 **Estado:** especificación de interfaz y navegación; dashboard, acceso, catálogo, períodos y auditoría implementados en la Fase 01. Las pantallas de diario, estados, presupuestos, escenarios, proyecciones y reportes siguen pendientes.
 
+**Actualización 12/11/2026:** el mapa contable inferior es histórico. En los siete
+módulos vigentes se eliminan encabezados decorativos y etiquetas repetidas;
+se conserva un `h1` accesible, navegación de ubicación y una leyenda global de
+datos simulados/USD. El Panel no contiene detalle de movimientos y muestra
+cuatro gráficos temporales; solo Panel y Reportes conservan indicadores.
+Categorías abre alta/edición en modal centrado. `/usuarios/[id]` es la pantalla
+de edición de información/rol; `/auditoria/usuarios/[id]` contiene identidad,
+actividad paginada y estado. `/auditoria?vista=bitacora` muestra el historial
+general. Detalle de decisiones y trazabilidad:
+[observaciones del Word](../implementacion/22_RECONSTRUCCION_SIETE_MODULOS.md#observaciones-del-word--12112026).
+
 ## 1. Criterio de diseño
 
 Cada pantalla tiene un propósito visible, un contexto financiero y una operación principal. La navegación respeta la estructura de `src/app` del [documento 06](06_DIRECTORIOS_Y_CONVENCIONES.md). Las pantallas comparten componentes mediante Atomic Design; las fórmulas y permisos efectivos se resuelven en el servidor.
@@ -164,4 +175,3 @@ El manual previsto se desarrolla en [21](../validacion_y_entrega/21_MANUAL_DE_US
 - **F6:** `Branding_Panaderia_Carlitos_COMPLETO.zip`, paleta, componentes, mapa y demo académica.
 - **F3:** `Carlitos_BASE_CONTABLE_AMPLIADA.xlsx`, hojas LEEME, CATALOGO y DIARIO; auditoría resumida en los documentos 04 y 20.
 - [Next.js: Project structure](https://nextjs.org/docs/app/getting-started/project-structure), para la relación entre carpetas y páginas.
-

@@ -11,12 +11,10 @@ export function UserStatusSwitch({ usuario, accion }: {
   const [estado, formAction, pendiente] = useActionState(accion, { ok: false, mensaje: "" });
 
   return (
-    <form action={formAction} className="flex items-center gap-3">
-      <input type="hidden" name="operacion" value="usuario" />
+    <form action={formAction} className="flex flex-wrap items-center gap-3">
+      <input type="hidden" name="operacion" value="usuario_estado" />
       <input type="hidden" name="id" value={usuario.usuario_id} />
       <input type="hidden" name="versionEsperada" value={usuario.actualizado_en} />
-      <input type="hidden" name="nombre" value={usuario.nombre} />
-      <input type="hidden" name="rol" value={usuario.rol} />
       <input type="hidden" name="activo" value={String(!usuario.activo)} />
       <Switch
         type="submit"
@@ -28,7 +26,7 @@ export function UserStatusSwitch({ usuario, accion }: {
       <span className={usuario.activo ? "text-sm text-texto" : "text-sm text-texto-suave"}>
         {usuario.activo ? "Activo" : "Inactivo"}
       </span>
-      {!estado.ok && estado.mensaje && <span role="alert" className="sr-only">{estado.mensaje}</span>}
+      {!estado.ok && estado.mensaje && <span role="alert" className="w-full text-sm text-peligro">{estado.mensaje}</span>}
     </form>
   );
 }

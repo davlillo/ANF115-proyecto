@@ -61,6 +61,17 @@ export type ResumenFinanciero = {
 
 export type PeriodoFinanciero = ResumenFinanciero & { periodo: string };
 export type DistribucionCategoria = { categoria: string; monto: string; ancho: string };
+export type GraficoFinanciero = {
+  clave: "ingresos" | "gastos" | "resultado" | "porcentaje_gastos";
+  titulo: string;
+  unidad: "USD" | "%";
+  minimo: string;
+  maximo: string;
+  cero: string;
+  puntos: { periodo: string; valor: string | null; x: string; y: string | null; alto: string; negativo: boolean }[];
+  anchoBarra: string;
+  conDatos: boolean;
+};
 export type EventoBitacora = {
   id: string;
   actor_id: string | null;
@@ -97,6 +108,7 @@ export type VistaFinanciera = {
   periodos: PeriodoFinanciero[];
   barras: { ingresos: string; gastos: string };
   distribucion: DistribucionCategoria[];
+  graficos: GraficoFinanciero[];
 };
 
 export type CampoOperacion = {
@@ -107,6 +119,7 @@ export type CampoOperacion = {
   requerido?: boolean;
   opciones?: { valor: string; etiqueta: string }[];
   maxLength?: number;
+  minLength?: number;
   placeholder?: string;
 };
 

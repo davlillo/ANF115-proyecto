@@ -2,6 +2,7 @@
 import { readFileSync } from "node:fs";
 import { createClient } from "@supabase/supabase-js";
 import { execFileSync } from "node:child_process";
+import { LONGITUD_MINIMA_CONTRASENA } from "@/config/seguridad";
 
 /** Explicit local-only maintenance. Never logs credentials or creates movements. */
 async function main() {
@@ -17,7 +18,7 @@ async function main() {
     throw new Error("Configure URL, credencial administrativa, DEMO_USER_PASSWORD y DEMO_SEED_ENABLED=true.");
   if (!["localhost", "127.0.0.1"].includes(new URL(url).hostname))
     throw new Error("La preparación demo solo puede ejecutarse contra Supabase local.");
-  if (password.length < 12) throw new Error("DEMO_USER_PASSWORD requiere al menos 12 caracteres.");
+  if (password.length < LONGITUD_MINIMA_CONTRASENA) throw new Error(`DEMO_USER_PASSWORD requiere al menos ${LONGITUD_MINIMA_CONTRASENA} caracteres.`);
   const admin = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
   const { data, error } = await admin.auth.admin.listUsers({ page: 1, perPage: 1000 });
   if (error) throw new Error("No se pudo consultar Auth local.");

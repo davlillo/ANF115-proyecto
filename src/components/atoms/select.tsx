@@ -9,7 +9,7 @@ export type SelectProps = React.ComponentProps<"select"> & {
 
 /**
  * Select nativo: conserva teclado, lectores de pantalla y comportamiento movil
- * sin agregar una capa de JavaScript en el cascaron.
+ * con un picker personalizado por CSS cuando el navegador lo admite.
  */
 export function Select({
   className,
@@ -28,7 +28,7 @@ export function Select({
       ) : null}
       <select
         className={cn(
-          "w-full appearance-none rounded-input border border-borde-fuerte bg-superficie pr-9 text-sm text-texto transition-colors",
+          "select-control w-full min-w-0 cursor-pointer rounded-input border border-borde-fuerte bg-superficie pr-9 text-sm text-texto transition-colors hover:border-texto-suave",
           compacto ? "h-[38px]" : "h-10",
           Icono ? "pl-10" : "pl-3.5",
           "focus-visible:border-[1.5px] focus-visible:border-texto focus-visible:outline-none",

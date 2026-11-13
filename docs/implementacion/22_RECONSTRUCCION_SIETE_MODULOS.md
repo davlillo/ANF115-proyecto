@@ -31,14 +31,16 @@ Exportar PDF/XLSX es complementario, no criterio del núcleo.
   afecta únicamente el listado paginado; los indicadores continúan calculándose
   con movimientos vigentes sobre las fechas, categoría y tipo seleccionados.
 - Categorías admite filtro URL por tipo (`ingreso` o `gasto`). El empleado
-  consulta las categorías activas autorizadas con la explicación de uso del
-  catálogo operativo documentado; no se presentan como cuentas contables. El
+  consulta las categorías activas autorizadas con su descripción de uso;
+  no se presentan como cuentas contables. El
   administrador añade filtro de estado (`activa` o `inactiva`) y cambia ese
-  estado con el interruptor auditado de cada tarjeta. La edición separada exige
-  al menos un campo modificado antes de habilitar «Guardar».
-- Usuarios presenta filtros URL, estado mediante interruptor y un menú único de
-  acciones para editar nombre/rol, consultar identidad y revisar actividad. No
-  expone eliminación: la desactivación preserva referencias y bitácora.
+  estado con el interruptor auditado de cada tarjeta. El alta y la edición usan
+  un modal centrado. La edición exige al menos un campo modificado.
+- Usuarios presenta filtros URL y un enlace único a `/usuarios/[id]` para editar
+  nombre/rol. No carga actividad ni cambia el estado de cuentas existentes.
+  Seguridad y bitácora ofrece acceso a `/auditoria/usuarios/[id]` para consultar
+  identidad, actividad paginada por actor y activar/desactivar el acceso. No
+  existe eliminación: se preservan referencias y bitácora.
 - Toda modificación de movimiento incluye revisión esperada; creación incluye
   solicitud UUID estable y comprueba que el contenido del reintento coincida.
 - Servidor por solicitud, autorización en controlador y PostgreSQL/RLS.
@@ -48,6 +50,41 @@ Exportar PDF/XLSX es complementario, no criterio del núcleo.
 - Resultado = ingresos − gastos. Porcentaje = gastos / ingresos × 100,
   redondeado HALF_UP; si ingresos = 0, `null` / «No aplica».
 - Fechas inclusivas; diferencia máxima de 3660 días; categorías compatibles.
+
+## Observaciones del Word — 12/11/2026
+
+Fuente: `cambios_anf.docx`, texto y doce capturas incrustadas. Esta revisión
+reemplaza las decisiones visuales previas indicadas en la tabla; no altera las
+fórmulas ni el alcance de autorización de los siete módulos.
+
+| Observación | Decisión implementada | RF |
+| --- | --- | --- |
+| Encabezados repetidos en cada módulo | Se eliminan título decorativo, subtítulo y eyebrow del contenido. Se conservan navegación, título de documento y `h1` accesible no visual. | RF06, RF08 |
+| Etiquetas y avisos sin valor | Se retiran las píldoras repetidas y el aviso contable azul. Una leyenda discreta global identifica datos simulados y USD. Se mantienen estados, errores y confirmaciones necesarias. | RF06, RF10 |
+| Gráficos de gastos, ingresos, resultado y porcentaje | Cuatro gráficos temporales, agrupación día/mes/año (día por defecto en Panel), valores exactos desplegables y vacío explícito. El servicio solo escala resultados de `anf_reporte`; no duplica sus fórmulas. | RF07, RF08 |
+| Quitar detalle de movimientos | Se retira del Panel; se conserva en Ingresos, Gastos y Reportes para consultar y anular registros. | RF04–RF09 |
+| Tarjetas solo en Panel y Reportes | Los indicadores no se muestran en Ingresos/Gastos; se retiran las tarjetas explicativas de Seguridad. | RF07, RF08 |
+| Quitar botones Registrar ingreso/gasto | Se quitan los accesos duplicados al formulario ya visible. | RF04, RF05 |
+| Limpiar captura automáticamente | Tras éxito se vacían concepto, monto y categoría, se restituye la fecha sugerida y se genera un nuevo UUID. En error se conservan valores y UUID para corregir/reintentar. | RF04, RF05, RF10 |
+| Quitar Continuar con otra operación | La siguiente captura queda disponible en el mismo formulario. | RF04, RF05 |
+| No desplegar detalle al anular | La confirmación cierra el panel; el motivo se vuelve a abrir solo con Ver detalle. | RF04, RF05 |
+| Quitar guía de Categorías | Se retira el banner; se conservan las descripciones de cada categoría. | RF03 |
+| Reubicar Nueva categoría | El botón queda en la barra de filtros, fuera del formulario GET. | RF03 |
+| Editar categoría en modal central | Modal accesible con cierre, teclado y devolución de foco; sin cambios no habilita Guardar. | RF03 |
+| Mejorar desplegables | Selector nativo con picker estilizado mediante `base-select`; mantiene teclado, validación y fallback nativo donde no hay soporte. Sin dependencias nuevas. | RF03–RF06 |
+| Un solo botón de acciones de usuario | Gestionar lleva a la pantalla de edición, sin menú flotante de tres acciones. | RF02 |
+| Contraseña de ocho caracteres | Mínimo 8 y máximo 128, consistente en alta, recuperación, preparación demo y Auth local; no se truncan contraseñas más largas. | RF01, RF02 |
+| Separar Usuarios de Seguridad y bitácora | Alta/edición de información y roles en Usuarios; identidad/actividad/estado en Seguridad. Acciones distintas y autorización también en servidor. | RF02, RF10 |
+| Arreglar login | Columnas fluidas en lugar de ancho fijo de 640 px, formulario compacto, errores por campo y correo conservado tras fallo. | RF01 |
+
+Las altas administrativas completadas quedan activas con el rol elegido. El
+trigger Auth sigue creando primero un perfil de empleado inactivo: si falla la
+asignación posterior, se informa el resultado parcial y se recupera desde
+Seguridad, sin repetir el alta. Se mantiene la protección del último administrador.
+
+La compilación y los recorridos se registran en el documento 20. E: es exFAT:
+Turbopack no puede crear sus junctions allí. La verificación usa una copia temporal
+en C: (NTFS), sin cambiar Next, Turbopack ni el repositorio de trabajo.
 
 ## Migración y reversibilidad
 

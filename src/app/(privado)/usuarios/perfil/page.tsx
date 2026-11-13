@@ -4,7 +4,6 @@ import { Avatar } from "@/components/atoms/avatar";
 import { Badge } from "@/components/atoms/badge";
 import { Banner } from "@/components/molecules/banner";
 import { OperationError } from "@/components/molecules/operation-error";
-import { PageHeader } from "@/components/molecules/page-header";
 import { consultarAdministracion } from "@/controladores/finanzas.controller";
 
 export const metadata = { title: "Mi perfil" };
@@ -21,7 +20,7 @@ export default async function Page() {
   const administrador = perfil.rol === "administrador";
   const rol = administrador ? "Administrador" : "Empleado";
   return <div className="space-y-6">
-    <PageHeader eyebrow="Cuenta · Acceso" titulo="Mi perfil" descripcion="Información personal y acceso al sistema." />
+    <h1 className="sr-only">Mi perfil</h1>
     <section className="grid overflow-hidden rounded-card border border-borde bg-superficie lg:grid-cols-[minmax(260px,0.8fr)_minmax(0,1.4fr)]">
       <div className="flex flex-col items-center justify-center border-b border-borde p-8 text-center lg:border-b-0 lg:border-r">
         <Avatar nombre={perfil.nombre} className="size-24 text-3xl font-medium" />

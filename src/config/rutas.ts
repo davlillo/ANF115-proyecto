@@ -76,6 +76,7 @@ export const rutas = {
     detalle: (id: string) => `/reportes/${encodeURIComponent(id)}`,
   },
   auditoria: "/auditoria",
+  seguridadUsuario: (id: string) => `/auditoria/usuarios/${encodeURIComponent(id)}`,
   configuracion: "/configuracion",
   api: {
     health: "/api/health",

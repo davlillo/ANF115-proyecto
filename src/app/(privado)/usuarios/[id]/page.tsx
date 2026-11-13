@@ -1,9 +1,13 @@
 import type { Metadata } from "next";
-import { ModulePlaceholder } from "@/components/molecules/module-placeholder";
-import { pantallas } from "@/config/pantallas";
+import { notFound } from "next/navigation";
+import { connection } from "next/server";
+import { OperationError } from "@/components/molecules/operation-error";
+import { UserWorkspace } from "@/components/organisms/users/user-workspace";
+import { consultarUsuario } from "@/controladores/finanzas.controller";
+import { guardarOperacion } from "../../operaciones";
 
 export const metadata: Metadata = {
-  title: "Detalle de usuario",
+  title: "Gestionar usuario",
 };
 
 export const instant = false;
@@ -13,9 +17,12 @@ type Props = {
 };
 
 export default async function Page({ params }: Props) {
+  await connection();
   const { id } = await params;
-
-  return (
-    <ModulePlaceholder pantalla={pantallas.usuarios.detalle} parametros={{ id }} />
-  );
+  const r = await consultarUsuario(id);
+  if (!r.ok) {
+    if (r.error.codigo === "RECURSO_NO_ENCONTRADO") notFound();
+    return <OperationError mensaje={r.error.mensaje} />;
+  }
+  return <UserWorkspace {...r.datos} accion={guardarOperacion} />;
 }

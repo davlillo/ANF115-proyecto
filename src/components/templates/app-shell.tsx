@@ -1,6 +1,5 @@
 import { Suspense } from "react";
 import type * as React from "react";
-import { SourceBadge } from "@/components/molecules/source-badge";
 import { Sidebar } from "@/components/organisms/navegacion/sidebar";
 import { TopbarBreadcrumb } from "@/components/organisms/navegacion/topbar-breadcrumb";
 import type { GrupoNavegacion } from "@/config/navegacion";
@@ -58,12 +57,6 @@ export function AppShell({
           <Suspense fallback={<span className="text-[13px] text-texto-suave">{contexto.empresaNombre}</span>}>
             <TopbarBreadcrumb empresa={contexto.empresaNombre} />
           </Suspense>
-          <div className="flex shrink-0 items-center gap-2">
-            <SourceBadge origen={contexto.origenDatos} />
-            <span className="rounded-pill border border-borde-fuerte px-2.5 py-1 font-mono text-[11px] tracking-[0.06em] text-texto-2">
-              {contexto.moneda}
-            </span>
-          </div>
         </header>
 
         <main
@@ -71,15 +64,12 @@ export function AppShell({
           className="flex-1 px-4 pb-12 pt-6 sm:px-6 lg:px-10 lg:pt-8"
         >
           <div className="mx-auto flex w-full max-w-[var(--ancho-contenido)] flex-col gap-6">
-            <div className="flex items-center gap-2 lg:hidden">
-              <SourceBadge origen={contexto.origenDatos} />
-              <span className="rounded-pill border border-borde-fuerte px-2.5 py-1 font-mono text-[11px] tracking-[0.06em] text-texto-2">
-                {contexto.moneda}
-              </span>
-            </div>
             {children}
           </div>
         </main>
+        <footer className="px-4 pb-5 text-xs text-texto-suave sm:px-6 lg:px-10">
+          <p className="mx-auto max-w-[var(--ancho-contenido)]">{contexto.origenDatos === "simulado" ? "Datos simulados" : "Datos reales"} · {contexto.moneda}</p>
+        </footer>
       </div>
     </div>
   );

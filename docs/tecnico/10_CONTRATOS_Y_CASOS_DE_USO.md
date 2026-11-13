@@ -4,6 +4,23 @@
 **Versión documental:** 0.1 · **Fecha:** 19 de octubre de 2026  
 **Estado:** contratos funcionales y técnicos propuestos. CU-01, CU-03, CU-04 y CU-23 tienen implementación y evidencia inicial; CU-02, CU-05 a CU-22 siguen pendientes.
 
+## Contrato vigente de usuarios — siete módulos, 12/11/2026
+
+La planificación contable inferior se conserva como antecedente. Para el alcance
+actual prevalece [22](../implementacion/22_RECONSTRUCCION_SIETE_MODULOS.md).
+
+| Operación | Entrada | Garantía |
+| --- | --- | --- |
+| `usuario`, alta | nombre, correo, contraseña 8–128 caracteres, rol permitido | Administrador activo; Auth solo en servidor; asignación con `anf_guardar_perfil`. Alta completada activa; fallo parcial conserva perfil inactivo. |
+| `usuario`, edición | UUID, `versionEsperada`, nombre y rol | Ignora `activo` del navegador y conserva el estado leído en servidor; RPC comprueba versión y último administrador. |
+| `usuario_estado` | UUID, `versionEsperada`, booleano `activo` | Administrador activo; ignora nombre/rol del navegador y los lee del perfil vigente antes de llamar a la misma RPC auditada. |
+| `consultarUsuario` | UUID; actividad opcional, página | Autorización antes de consultar Auth. UUID inválido o recurso inexistente: `RECURSO_NO_ENCONTRADO`; empleado: `PERMISO_DENEGADO`. Actividad filtrada por actor en PostgreSQL, 50 eventos por página. |
+
+`/usuarios/[id]` solo edita información/rol. `/auditoria/usuarios/[id]` presenta
+identidad, actividad y estado. Ambas páginas y sus Actions verifican autorización
+en servidor; el cambio de ubicación no elimina RLS ni grants. Los códigos de
+error existentes y `Resultado<T>` se mantienen.
+
 ## 1. Alcance de los contratos
 
 Los controladores implementarán CU-01 a CU-23. Una página, Action o Route Handler adapta su entrada al mismo caso de uso; no introduce una segunda fórmula o un flujo alternativo sin autorización.
@@ -207,4 +224,3 @@ Un contrato queda implementado cuando valida entradas y permisos, preserva la at
 - [Next.js: Backend for Frontend](https://nextjs.org/docs/app/guides/backend-for-frontend), adaptadores HTTP y llamadas internas.
 - [Supabase: Database functions](https://supabase.com/docs/guides/database/functions), funciones e invocación RPC.
 - [03 Requisitos](../negocio/03_REQUERIMIENTOS_Y_CRITERIOS_DE_ACEPTACION.md), [07 Modelo](07_MODELO_DE_DATOS_Y_MIGRACIONES.md), [08 Seguridad](08_AUTENTICACION_PERMISOS_Y_AUDITORIA.md).
-

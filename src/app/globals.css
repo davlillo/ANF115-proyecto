@@ -119,4 +119,66 @@
   summary.sin-marcador::-webkit-details-marker {
     display: none;
   }
+
+  .select-control {
+    appearance: none;
+  }
+
+  /* Keep appearance in one layer so utilities cannot override base-select. */
+  @supports (appearance: base-select) {
+    .select-control,
+    .select-control::picker(select) {
+      appearance: base-select;
+    }
+
+    .select-control {
+      align-items: center;
+    }
+
+    .select-control::picker-icon {
+      display: none;
+    }
+
+    .select-control::picker(select) {
+      max-height: min(320px, 60dvh);
+      min-width: anchor-size(width);
+      margin-block: 6px;
+      overflow-y: auto;
+      border: 1px solid var(--borde-fuerte);
+      border-radius: var(--radio-menu);
+      background: var(--superficie);
+      padding: 6px;
+      color: var(--texto-principal);
+      font-family: var(--fuente-ui);
+      box-shadow: var(--sombra-flotante);
+      scrollbar-width: thin;
+      scrollbar-color: var(--borde-fuerte) transparent;
+    }
+
+    .select-control option {
+      min-height: 40px;
+      gap: 12px;
+      border-radius: 6px;
+      padding: 10px 12px;
+      font-size: 14px;
+      line-height: 1.4;
+      white-space: normal;
+    }
+
+    .select-control option:hover,
+    .select-control option:focus {
+      background: var(--superficie-tenue);
+    }
+
+    .select-control option:checked {
+      background: var(--acento-tinte);
+      color: var(--acento);
+      font-weight: 600;
+    }
+
+    .select-control option::checkmark {
+      order: 1;
+      margin-left: auto;
+    }
+  }
 }

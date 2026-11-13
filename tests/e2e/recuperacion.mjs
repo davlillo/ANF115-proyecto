@@ -31,13 +31,13 @@ try {
   assert.equal(new URL(link).origin, base);
   await page.goto(link);
   await page.waitForURL("**/restablecer-acceso");
-  const password = `${crypto.randomUUID()}Aa9!`;
+  const password = `${crypto.randomUUID().slice(0, 4)}Aa9!`;
   await page.getByLabel("Nueva contraseña", { exact: true }).fill(password);
   await page.getByLabel("Confirmar contraseña", { exact: true }).fill(password);
   await page.getByRole("button", { name: "Actualizar contraseña", exact: true }).click();
   await page.waitForURL("**/login");
-  await page.getByRole("heading", { name: "Inicia sesion", exact: true }).waitFor();
-  await page.getByLabel(/Correo electronico/).fill(usuario.email);
+  await page.getByRole("heading", { name: "Inicia sesión", exact: true }).waitFor();
+  await page.getByLabel(/Correo electrónico/).fill(usuario.email);
   await page.locator("#contrasena").fill(password);
   await page.getByRole("button", { name: "Entrar al sistema" }).click();
   await page.waitForURL("**/dashboard");

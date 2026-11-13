@@ -3,6 +3,7 @@ import { crearClienteFinanzas } from "@/supabase/finanzas.server";
 import { obtenerEnvServidor } from "@/config/env.server";
 import { rutas } from "@/config/rutas";
 import { ErrorDominio } from "@/lib/errores";
+import { LONGITUD_MINIMA_CONTRASENA } from "@/config/seguridad";
 
 export async function enviarRecuperacion(correo: string): Promise<void> {
   const c = await crearClienteFinanzas();
@@ -28,6 +29,6 @@ export async function verificarSesionRecuperacion(): Promise<void> {
 export async function cambiarContrasena(contrasena: string): Promise<void> {
   const c = await crearClienteFinanzas();
   const { error } = await c.auth.updateUser({ password: contrasena });
-  if (error) throw new ErrorDominio("VALIDACION_ENTRADA", "No se pudo actualizar la contraseña. Use una nueva de al menos 12 caracteres o solicite otro enlace.");
+  if (error) throw new ErrorDominio("VALIDACION_ENTRADA", `No se pudo actualizar la contraseña. Use una nueva de al menos ${LONGITUD_MINIMA_CONTRASENA} caracteres o solicite otro enlace.`);
   await c.auth.signOut();
 }

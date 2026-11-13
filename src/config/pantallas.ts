@@ -35,7 +35,7 @@ export const pantallas = {
     lista: {
       titulo: "Usuarios y roles",
       descripcion:
-        "Usuarios, membresias, estado de acceso y rol asignado por empresa.",
+        "Registro, búsqueda y edición de información y roles de usuarios.",
       ruta: "/usuarios",
       acceso: "usuarios.gestionar",
       permiso: "usuarios.gestionar",
@@ -51,9 +51,9 @@ export const pantallas = {
       fase: "01",
     },
     detalle: {
-      titulo: "Detalle de usuario",
+      titulo: "Gestionar usuario",
       descripcion:
-        "Edicion de membresia, rol autorizado y estado de la cuenta.",
+        "Edición de nombre y rol. El estado se administra en Seguridad y bitácora.",
       ruta: "/usuarios/[id]",
       acceso: "usuarios.gestionar",
       permiso: "usuarios.gestionar",
@@ -351,10 +351,18 @@ export const pantallas = {
     },
   },
   auditoria: {
-    titulo: "Auditoria",
+    titulo: "Seguridad y bitácora",
     descripcion:
-      "Eventos recientes de la empresa con actor, accion, entidad, versiones y motivo.",
+      "Acceso de usuarios, detalle de identidad, actividad y bitácora general.",
     ruta: "/auditoria",
+    acceso: "auditoria.leer",
+    permiso: "auditoria.leer",
+    fase: "01",
+  },
+  seguridadUsuario: {
+    titulo: "Seguridad de usuario",
+    descripcion: "Detalle, actividad paginada y activación o desactivación del acceso.",
+    ruta: "/auditoria/usuarios/[id]",
     acceso: "auditoria.leer",
     permiso: "auditoria.leer",
     fase: "01",

@@ -9,6 +9,7 @@ export const instant = false;
 
 export default async function Page({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   await connection();
-  const r = await consultarFinanzas(await searchParams);
+  const q = await searchParams;
+  const r = await consultarFinanzas({ ...q, granularidad: q.granularidad ?? "dia" });
   return r.ok ? <FinanceWorkspace data={r.datos} modulo="panel" accion={guardarOperacion} /> : <OperationError mensaje={r.error.mensaje} />;
 }

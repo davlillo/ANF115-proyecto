@@ -12,7 +12,8 @@ export async function proxy(request: NextRequest) {
   if (rutasRetiradas.some((ruta) => request.nextUrl.pathname === ruta || request.nextUrl.pathname.startsWith(`${ruta}/`))) {
     return NextResponse.redirect(new URL(rutas.dashboard, request.url));
   }
-  if (request.nextUrl.pathname.startsWith("/usuarios/") && request.nextUrl.pathname !== "/usuarios/perfil") {
+  if ([rutas.usuarios.nuevo, rutas.usuarios.permisos].some((ruta) =>
+    request.nextUrl.pathname === ruta || request.nextUrl.pathname.startsWith(`${ruta}/`))) {
     return NextResponse.redirect(new URL(rutas.usuarios.lista, request.url));
   }
   if (request.nextUrl.pathname.startsWith("/reportes/")) {

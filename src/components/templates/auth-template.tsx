@@ -1,6 +1,5 @@
 ﻿import { Check, Croissant } from "lucide-react";
 import type * as React from "react";
-import { SourceBadge } from "@/components/molecules/source-badge";
 
 type AuthTemplateProps = {
   titulo: string;
@@ -24,8 +23,8 @@ export function AuthTemplate({
   children,
 }: AuthTemplateProps) {
   return (
-    <div className="min-h-screen bg-fondo lg:grid lg:grid-cols-[640px_1fr]">
-      <section className="hidden flex-col justify-between bg-[radial-gradient(ellipse_at_0%_100%,var(--acceso-brillo),var(--tinta)_62%)] px-14 py-14 text-fondo lg:flex">
+    <div className="min-h-dvh bg-fondo lg:grid lg:grid-cols-2">
+      <section aria-label="Carlitos Finanzas" className="hidden min-w-0 flex-col justify-between gap-12 bg-[radial-gradient(ellipse_at_0%_100%,var(--acceso-brillo),var(--tinta)_62%)] p-10 text-fondo lg:flex xl:p-14">
         <div className="flex items-center gap-3.5">
           <span className="flex size-11 items-center justify-center rounded-input bg-fondo text-texto">
             <Croissant aria-hidden="true" className="size-6" />
@@ -36,13 +35,13 @@ export function AuthTemplate({
           </span>
         </div>
 
-        <div className="max-w-xl space-y-6">
+        <div className="max-w-lg space-y-6">
           <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-acceso-eyebrow">
             Control financiero
           </p>
-          <h1 className="text-[46px] font-medium leading-[1.06] tracking-[-0.035em] text-fondo">
+          <h2 className="text-[clamp(2rem,3.2vw,3rem)] font-medium leading-[1.1] tracking-[-0.035em] text-fondo">
             Decisiones con números que se pueden explicar.
-          </h1>
+          </h2>
           <p className="max-w-md text-base leading-relaxed text-fondo/70">
             Un solo lugar para registrar cobros y pagos, consultar reportes
             y comprender los resultados de la panadería.
@@ -63,12 +62,11 @@ export function AuthTemplate({
         </div>
 
         <div className="flex flex-wrap items-center justify-between gap-3 font-mono text-[11px] text-fondo/50">
-          <SourceBadge className="border-fondo/25 text-fondo/85" />
           <span>Panadería Carlitos &middot; 2026</span>
         </div>
       </section>
 
-      <section className="flex items-center justify-center px-4 py-10 sm:px-8">
+      <main id="contenido-principal" className="flex min-h-dvh min-w-0 items-center justify-center px-6 py-8 sm:px-10 lg:py-12">
         <div className="w-full max-w-[400px]">
           <div className="mb-10 flex items-center gap-3 lg:hidden">
             <span className="flex size-[34px] items-center justify-center rounded-input bg-primario text-acento-tinte">
@@ -78,8 +76,7 @@ export function AuthTemplate({
           </div>
 
           <div className="space-y-3">
-            <p className="etiqueta-mono text-[11px]">Acceso</p>
-            <h2 className="text-[32px] font-medium leading-tight tracking-[-0.03em] text-texto">{titulo}</h2>
+            <h1 className="text-[32px] font-medium leading-tight tracking-[-0.03em] text-texto">{titulo}</h1>
             <p className="text-sm leading-relaxed text-texto-suave">
               {descripcion}
             </p>
@@ -88,11 +85,10 @@ export function AuthTemplate({
           <div className="mt-8">{children}</div>
 
           <p className="mt-8 text-center text-xs leading-relaxed text-texto-suave">
-            Sistema con datos simulados. El acceso, los perfiles y los permisos
-            se resuelven en el servidor con Supabase.
+            Panadería Carlitos · Datos simulados
           </p>
         </div>
-      </section>
+      </main>
     </div>
   );
 }

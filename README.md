@@ -32,7 +32,7 @@ Completar `.env.local`:
 | `APP_ORIGIN` | `http://localhost:3000` |
 | `APP_ENV` | `local` |
 | `DEMO_SEED_ENABLED` | `true` para preparar las cuentas de demostración |
-| `DEMO_USER_PASSWORD` | Una contraseña local de al menos 12 caracteres |
+| `DEMO_USER_PASSWORD` | Una contraseña local de al menos 8 caracteres |
 
 No pegar estas claves en el README ni compartir la salida completa de `status`.
 `.env.local` está excluido de Git. La clave administrativa nunca lleva prefijo
@@ -48,7 +48,7 @@ npm run dev
 
 Abrir <http://localhost:3000/login>. `preparar:demo` exige
 `DEMO_SEED_ENABLED=true`, URL localhost y `DEMO_USER_PASSWORD` de al menos
-12 caracteres. Nunca imprime contraseñas ni funciona contra un proyecto remoto.
+8 caracteres. Nunca imprime contraseñas ni funciona contra un proyecto remoto.
 
 | Cuenta local | Rol |
 | --- | --- |
@@ -114,9 +114,16 @@ Si aparece un conflicto de puertos, identificar el servicio que los ocupa antes
 de detenerlo. Si Docker falla al arrancar, revisar espacio libre: sus imágenes
 y discos virtuales pueden ocupar bastante en C:, aunque el repositorio esté en E:.
 
+En Windows, Turbopack necesita crear enlaces/junctions para paquetes de servidor.
+Usar una unidad NTFS para desarrollo y compilación: exFAT puede devolver
+`failed to create junction point`. La validación del 12/11/2026 se realiza en una
+copia temporal sobre C: sin cambiar el stack ni mover el repositorio original.
+
 ## Uso y alcance
 
 - El administrador gestiona usuarios/categorías y consulta todos los movimientos.
+- Usuarios registra cuentas y edita nombre/rol en una pantalla dedicada;
+  Seguridad y bitácora consulta identidad/actividad y activa/desactiva el acceso.
 - El empleado captura, corrige, anula y consulta exclusivamente los suyos.
 - Las anulaciones requieren motivo y son definitivas. No se borran movimientos.
 - Panel y reportes excluyen anulados y usan todo el filtro, no solo la página.

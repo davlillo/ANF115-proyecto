@@ -11,7 +11,7 @@ export default function LoginPage() {
   return (
     <AuthTemplate
       titulo="Inicia sesión"
-      descripcion="Ingresa con tu cuenta de administrador o empleado. El perfil activo determina el acceso a tus datos."
+      descripcion="Ingresa con tu cuenta para administrar los ingresos y gastos de la panadería."
     >
       <LoginForm accion={iniciarSesionAction} />
     </AuthTemplate>

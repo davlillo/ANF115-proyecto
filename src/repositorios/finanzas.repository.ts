@@ -84,10 +84,28 @@ export async function leerPerfiles(pagina: number, filtros?: {
   return { perfiles: perfiles.slice((pagina - 1) * 50, pagina * 50), total: perfiles.length };
 }
 
-export async function leerBitacora(pagina: number) {
+export async function leerPerfil(id: string) {
   const c = await crearClienteFinanzas();
-  const { data, error, count } = await c.from("bitacora")
-    .select("id,actor_id,fecha_hora,accion,entidad,registro_id,motivo,antes,despues", { count: "exact" })
+  const { data, error } = await c.from("perfiles")
+    .select("usuario_id,nombre,rol,activo,actualizado_en").eq("usuario_id", id).maybeSingle();
+  comprobarError(error);
+  if (!data) throw new ErrorDominio("RECURSO_NO_ENCONTRADO");
+  return data;
+}
+
+export async function leerUsuario(id: string) {
+  const perfil = await leerPerfil(id);
+  const { data, error } = await crearClienteAdmin().auth.admin.getUserById(id);
+  if (error || !data.user) throw new ErrorDominio("INTEGRACION_NO_DISPONIBLE", "No se pudo consultar la identidad del usuario.");
+  return { ...perfil, correo: data.user.email ?? "Correo no disponible", creado_en: data.user.created_at };
+}
+
+export async function leerBitacora(pagina: number, actorId?: string) {
+  const c = await crearClienteFinanzas();
+  let consulta = c.from("bitacora")
+    .select("id,actor_id,fecha_hora,accion,entidad,registro_id,motivo,antes,despues", { count: "exact" });
+  if (actorId) consulta = consulta.eq("actor_id", actorId);
+  const { data, error, count } = await consulta
     .order("fecha_hora", { ascending: false }).order("id").range((pagina - 1) * 50, pagina * 50 - 1);
   comprobarError(error);
   const filas = data ?? [];
@@ -105,23 +123,6 @@ export async function leerBitacora(pagina: number) {
     actor_rol: e.actor_id ? actores.get(e.actor_id)?.rol ?? null : null,
   }));
   return { eventos, total: count ?? 0 };
-}
-
-export async function leerActividadUsuarios(ids: string[]) {
-  if (ids.length === 0) return [];
-  const c = await crearClienteFinanzas();
-  const { data, error } = await c.from("bitacora")
-    .select("id,actor_id,fecha_hora,accion,entidad,registro_id,motivo,antes,despues")
-    .in("actor_id", ids).order("fecha_hora", { ascending: false }).limit(200);
-  comprobarError(error);
-  const { data: actores, error: actoresError } = await c.from("perfiles")
-    .select("usuario_id,nombre").in("usuario_id", ids);
-  comprobarError(actoresError);
-  const nombres = new Map((actores ?? []).map((actor) => [actor.usuario_id, actor.nombre]));
-  return (data ?? []).map((evento) => ({
-    ...evento,
-    actor_nombre: evento.actor_id ? (nombres.get(evento.actor_id) ?? "Usuario no disponible") : null,
-  }));
 }
 
 type Funciones = FinanzasDatabase["public"]["Functions"];
@@ -146,7 +147,7 @@ export async function persistirCategoria(args: Funciones["anf_guardar_categoria"
 
 export async function persistirUsuario(v: {
   id?: string; versionEsperada?: string; nombre: string; correo?: string;
-  contrasena?: string; rol: string; activo: boolean;
+  contrasena?: string; rol: string;
 }) {
   const c = await crearClienteFinanzas();
   let id = v.id;
@@ -163,8 +164,19 @@ export async function persistirUsuario(v: {
   if (lecturaError || !perfil) throw new ErrorDominio("INTEGRACION_NO_DISPONIBLE", "La identidad existe, pero su perfil quedó pendiente. No repita el alta; revise Usuarios.");
   const { data, error } = await c.rpc("anf_guardar_perfil", {
     p_id: id, p_version: v.versionEsperada ?? perfil.actualizado_en,
-    p_nombre: v.nombre, p_rol: v.rol, p_activo: v.activo,
+    p_nombre: v.nombre, p_rol: v.rol, p_activo: v.id ? perfil.activo : true,
   });
-  if (error && !v.id) throw new ErrorDominio("INTEGRACION_NO_DISPONIBLE", "La identidad fue creada como empleado inactivo. Complete su activación desde Usuarios.");
+  if (error && !v.id) throw new ErrorDominio("INTEGRACION_NO_DISPONIBLE", "La identidad fue creada como empleado inactivo. Complete su activación desde Seguridad y bitácora, sin repetir el alta.");
   comprobarError(error); return data;
+}
+
+export async function persistirEstadoUsuario(v: { id: string; versionEsperada: string; activo: boolean }) {
+  const perfil = await leerPerfil(v.id);
+  const c = await crearClienteFinanzas();
+  const { data, error } = await c.rpc("anf_guardar_perfil", {
+    p_id: v.id, p_version: v.versionEsperada,
+    p_nombre: perfil.nombre, p_rol: perfil.rol, p_activo: v.activo,
+  });
+  comprobarError(error);
+  return data;
 }

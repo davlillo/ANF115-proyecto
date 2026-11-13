@@ -15,7 +15,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<Rec
   const q = await searchParams;
   const pagina = typeof q.pagina === "string" && /^\d{1,6}$/.test(q.pagina) ? Math.max(1, Number(q.pagina)) : 1;
   const buscar = typeof q.buscar === "string" ? q.buscar.trim().slice(0, 120) : undefined;
-  const rol = q.rol === "administrador" || q.rol === "empleado" ? q.rol : undefined;
+  const rol: "administrador" | "empleado" | undefined = q.rol === "administrador" || q.rol === "empleado" ? q.rol : undefined;
   const activo = q.estado === "activo" ? true : q.estado === "inactivo" ? false : undefined;
   const filtros = { buscar: buscar || undefined, rol, activo };
   const r = await consultarAdministracion("usuarios", pagina, undefined, undefined, filtros);

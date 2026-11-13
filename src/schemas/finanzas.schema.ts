@@ -1,5 +1,8 @@
 import { z } from "zod";
 import { Decimal } from "@/lib/decimal";
+import { LONGITUD_MINIMA_CONTRASENA } from "@/config/seguridad";
+
+export const contrasenaSchema = z.string().min(LONGITUD_MINIMA_CONTRASENA).max(128);
 
 export const fechaFinancieraSchema = z.iso.date();
 export const montoFinancieroSchema = z.string()
@@ -53,8 +56,13 @@ export const usuarioSchema = z.object({
   versionEsperada: z.string().optional(),
   nombre: z.string().trim().min(2).max(120),
   correo: z.email().optional(),
-  contrasena: z.string().min(12).max(128).optional(),
+  contrasena: contrasenaSchema.optional(),
   rol: z.enum(["administrador", "empleado"]),
-  activo: z.boolean(),
-}).refine((v) => !!v.id || (!!v.correo && !!v.contrasena), { message: "Indique correo y contraseña de al menos 12 caracteres." })
+}).refine((v) => !!v.id || (!!v.correo && !!v.contrasena), { message: `Indique correo y contraseña de al menos ${LONGITUD_MINIMA_CONTRASENA} caracteres.` })
   .refine((v) => !v.id || !!v.versionEsperada, { path: ["versionEsperada"], message: "Falta la versión del perfil." });
+
+export const estadoUsuarioSchema = z.object({
+  id: z.uuid(),
+  versionEsperada: z.string().min(1),
+  activo: z.boolean(),
+});

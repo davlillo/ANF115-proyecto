@@ -1,10 +1,11 @@
 import "server-only";
 import { z } from "zod";
 import { requerirPerfilOperativo } from "@/auth/perfil-operativo";
-import { leerCategorias, leerMovimientos, leerReporte, leerPerfiles, leerBitacora, leerActividadUsuarios,
-  persistirMovimiento, persistirAnulacion, persistirCategoria, persistirUsuario } from "@/repositorios/finanzas.repository";
-import { filtroFinancieroSchema, movimientoSchema, anulacionSchema, categoriaSchema, usuarioSchema } from "@/schemas/finanzas.schema";
+import { leerCategorias, leerMovimientos, leerReporte, leerPerfiles, leerBitacora, leerUsuario,
+  persistirMovimiento, persistirAnulacion, persistirCategoria, persistirUsuario, persistirEstadoUsuario } from "@/repositorios/finanzas.repository";
+import { filtroFinancieroSchema, movimientoSchema, anulacionSchema, categoriaSchema, usuarioSchema, estadoUsuarioSchema } from "@/schemas/finanzas.schema";
 import { anchoComparativo } from "@/servicios/finanzas/resumen";
+import { prepararGraficos } from "@/servicios/finanzas/graficos";
 import { Decimal } from "@/lib/decimal";
 import { desdeError, generarRequestId, ok, fallo } from "@/lib/resultado";
 import { ErrorDominio } from "@/lib/errores";
@@ -29,6 +30,7 @@ export async function consultarFinanzas(q: Query, tipo?: "ingreso" | "gasto") {
     return ok({ perfil, filtro, pagina, fechaSugerida: hoy, ...listado, resumen: reporte.resumen, periodos: reporte.periodos, categorias,
       barras: { ingresos: anchoComparativo(reporte.resumen.ingresos, maximo), gastos: anchoComparativo(reporte.resumen.gastos, maximo) },
       distribucion: reporte.categorias.map((c) => ({ ...c, ancho: anchoComparativo(c.monto, reporte.resumen.gastos) })),
+      graficos: prepararGraficos(reporte.periodos),
     }, requestId);
   } catch (e) {
     if (e instanceof z.ZodError) return fallo("VALIDACION_ENTRADA", requestId, { mensaje: "Revise fechas, categoría, tipo, estado y página. El rango máximo es de 3660 días." });
@@ -42,6 +44,7 @@ export async function consultarAdministracion(
   tipoCategoria?: TipoMovimiento,
   estadoCategoria?: "activa" | "inactiva",
   filtrosUsuarios?: { buscar?: string; rol?: "administrador" | "empleado"; activo?: boolean },
+  vistaSeguridad: "usuarios" | "bitacora" = "usuarios",
 ) {
   const requestId = generarRequestId();
   try {
@@ -51,28 +54,37 @@ export async function consultarAdministracion(
           ? (estadoCategoria ? estadoCategoria === "activa" : undefined)
           : true)
       : undefined;
+    const consultarUsuarios = modulo === "usuarios" || (modulo === "bitacora" && vistaSeguridad === "usuarios");
     const [categorias, usuarios, bitacora] = await Promise.all([
       modulo === "categorias"
         ? leerCategorias(tipoCategoria, activoCategoria)
         : Promise.resolve([]),
-      modulo === "usuarios" ? leerPerfiles(pagina, filtrosUsuarios) : Promise.resolve({ perfiles: [], total: 0 }),
-      modulo === "bitacora" ? leerBitacora(pagina) : Promise.resolve({ eventos: [], total: 0 }),
+      consultarUsuarios ? leerPerfiles(pagina, filtrosUsuarios) : Promise.resolve({ perfiles: [], total: 0 }),
+      modulo === "bitacora" && vistaSeguridad === "bitacora" ? leerBitacora(pagina) : Promise.resolve({ eventos: [], total: 0 }),
     ]);
-    const actividadUsuarios = modulo === "usuarios"
-      ? await leerActividadUsuarios(usuarios.perfiles.map((usuario) => usuario.usuario_id))
-      : [];
     return ok({ perfil, correoPerfil: modulo === "perfil" ? (user.email ?? "") : undefined,
       categorias, perfiles: usuarios.perfiles,
-      eventos: modulo === "usuarios" ? actividadUsuarios : bitacora.eventos,
-      tipoCategoria, estadoCategoria, filtrosUsuarios,
-      total: modulo === "usuarios" ? usuarios.total : bitacora.total }, requestId);
+      eventos: bitacora.eventos,
+      tipoCategoria, estadoCategoria, filtrosUsuarios, vistaSeguridad,
+      total: consultarUsuarios ? usuarios.total : bitacora.total }, requestId);
+  } catch (e) { return desdeError(e, requestId); }
+}
+
+export async function consultarUsuario(id: string, actividad = false, pagina = 1) {
+  const requestId = generarRequestId();
+  try {
+    await requerirPerfilOperativo(true);
+    if (!z.uuid().safeParse(id).success) return fallo("RECURSO_NO_ENCONTRADO", requestId);
+    const usuario = await leerUsuario(id);
+    const bitacora = actividad ? await leerBitacora(pagina, id) : { eventos: [], total: 0 };
+    return ok({ usuario, ...bitacora }, requestId);
   } catch (e) { return desdeError(e, requestId); }
 }
 
 export async function ejecutarOperacion(operacion: string, input: Record<string, unknown>) {
   const requestId = generarRequestId();
   try {
-    const admin = ["categoria", "usuario"].includes(operacion);
+    const admin = ["categoria", "usuario", "usuario_estado"].includes(operacion);
     await requerirPerfilOperativo(admin);
     if (operacion === "movimiento") {
       const v = movimientoSchema.parse(input);
@@ -97,6 +109,11 @@ export async function ejecutarOperacion(operacion: string, input: Record<string,
     if (operacion === "usuario") {
       const v = usuarioSchema.parse(input);
       const id = await persistirUsuario(v);
+      return ok({ id }, requestId);
+    }
+    if (operacion === "usuario_estado") {
+      const v = estadoUsuarioSchema.parse(input);
+      const id = await persistirEstadoUsuario(v);
       return ok({ id }, requestId);
     }
     throw new ErrorDominio("VALIDACION_ENTRADA");

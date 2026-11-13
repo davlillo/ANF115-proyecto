@@ -9,6 +9,11 @@ begin
   perform pg_temp.assert_true(failed,label);
 end $$;
 
+-- A local catalog may already contain inactive categories; do not reactivate user data.
+create temporary table anf_expected_categories on commit drop as
+  select count(*) as cantidad from public.categorias where activo;
+grant select on anf_expected_categories to authenticated;
+
 insert into auth.users(id) values
 ('10000000-0000-4000-8000-000000000001'),
 ('10000000-0000-4000-8000-000000000002'),
@@ -23,7 +28,7 @@ select pg_temp.must_fail('select public.anf_reporte(''2026-10-01'',''2026-10-31'
 reset role;
 set local request.jwt.claim.sub='10000000-0000-4000-8000-000000000002';
 set local role authenticated;
-select pg_temp.assert_true((select count(*)=26 from public.categorias),'employee reads categories');
+select pg_temp.assert_true((select count(*)=(select cantidad from pg_temp.anf_expected_categories) and bool_and(activo) from public.categorias),'employee reads active categories only');
 select pg_temp.assert_true((select count(*)=1 from public.perfiles),'employee only own profile');
 select pg_temp.must_fail('insert into public.ingresos(fecha,concepto,monto,categoria_id,solicitud_id) select ''2026-10-01'',''SQL direct'',1,id,gen_random_uuid() from public.categorias limit 1','direct financial DML blocked');
 select pg_temp.must_fail('select public.anf_guardar_categoria(null,null,''I99'',''No permitido'',''ingreso'','''',true)','employee category mutation denied');
