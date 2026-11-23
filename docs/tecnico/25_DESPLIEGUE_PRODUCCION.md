@@ -43,7 +43,35 @@ Notas obligatorias:
 Las migraciones de `supabase/migrations/` son la fuente autoritativa. Para una
 base nueva hay dos caminos equivalentes.
 
+### Estado del proyecto remoto
+
+El proyecto `ANF_PANADERIA_CARLITOS` (`zroatijmzqbdxqirvyvu`, región `us-east-2`)
+quedó desplegado el 22/11/2026 con las diez migraciones aplicadas.
+
+Antes de ese despliegue contenía un esquema anterior, distinto del repo
+(`private.rol_actual`, `private.validar_movimiento`, disparadores `carlitos_*`),
+sin usuarios ni movimientos. Se respaldó el estado previo en
+`backups/remoto-20261122/` (esquema y datos, excluido de Git) y se reconstruyó
+con `supabase db reset --linked`, que aplica las migraciones del repo.
+
+Verificación posterior:
+
+| Comprobación | Resultado |
+| --- | --- |
+| `supabase migration list --linked` | 10 migraciones locales y remotas coincidentes |
+| Funciones en `public` y `private` | 22 |
+| Políticas RLS | 13 |
+| Tablas y vista | 6 + `v_movimientos` |
+| Disparador `anf_alta_perfil` en `auth.users` | Presente |
+| Categorías operativas | 26 (6 ingreso, 20 gasto) |
+
+`supabase/verificar_esquema.sql` reproduce esa comparación: devuelve una huella
+JSON de tablas, columnas, funciones, políticas, disparadores, propietarios y
+permisos. Se comparó contra la base local validada y no hubo diferencias de
+estructura.
+
 ### Opción A — migraciones (recomendada)
+
 
 ```bash
 npx supabase link --project-ref <project-ref>
@@ -85,7 +113,20 @@ antes de crear los disparadores.
 - Roles de plataforma de Supabase (`anon`, `authenticated`, `service_role`):
   ya existen en el proyecto.
 
-## 3. Verificación posterior
+## 3. Primera cuenta administradora
+
+El disparador `anf_alta_perfil` crea todo perfil **inactivo**. Una cuenta recién
+registrada no puede operar hasta activarla.
+
+1. Crear la cuenta en Supabase → Authentication → Users (o desde el módulo
+   Usuarios con `SUPABASE_ADMIN_KEY` configurada).
+2. Ejecutar `supabase/activar_administrador.sql` en el SQL Editor, cambiando el
+   correo. Deja el perfil con `rol = 'administrador'` y `activo = true`.
+3. Iniciar sesión con esa cuenta.
+
+Las cuentas siguientes se crean y activan desde la propia aplicación.
+
+## 4. Verificación posterior
 
 1. `npx supabase migration list` sin diferencias pendientes (si se usó la
    opción A).
@@ -101,7 +142,7 @@ antes de crear los disparadores.
 4. Revisar que un usuario con rol `empleado` solo vea sus propios movimientos.
 5. Ejecutar `npm run build` con las variables de producción antes de publicar.
 
-## 4. Riesgos conocidos
+## 5. Riesgos conocidos
 
 - `npm audit` reporta avisos moderados en las cadenas de ExcelJS y ESLint. No
   hay avisos altos ni críticos, y ninguno afecta a ECharts o zrender.
