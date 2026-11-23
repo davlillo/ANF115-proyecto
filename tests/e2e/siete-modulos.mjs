@@ -13,13 +13,38 @@ mkdirSync("test-results", { recursive: true });
 const browser = await chromium.launch({ headless: true, channel: process.env.E2E_BROWSER_CHANNEL });
 const errors = [];
 const simulaciones = { movimientos: [], usuarios: [], categorias: [] };
+
+// UUID ordering does not guarantee a newly saved movement is on the first page.
+async function localizarMovimiento(page, concepto) {
+  const inicio = new URL(page.url());
+  inicio.searchParams.delete("pagina");
+  await page.goto(inicio.href);
+  const visitadas = new Set();
+  while (!visitadas.has(page.url())) {
+    visitadas.add(page.url());
+    await page.getByRole("columnheader", { name: "Concepto", exact: true }).waitFor();
+    const registro = page.getByRole("row").filter({ has: page.getByText(concepto, { exact: true }) });
+    if (await registro.count()) return registro;
+    const siguiente = page.getByRole("link", { name: "Página siguiente", exact: true });
+    if (!(await siguiente.count())) break;
+    await page.goto(new URL(await siguiente.getAttribute("href"), page.url()).href);
+  }
+  throw new Error(`Movement not found in authorized pages: ${concepto}`);
+}
+
 try {
   for (const [email, rol] of [["admin@carlitos.local", "administrador"], ["empleado@carlitos.local", "empleado"]]) {
     const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
     const page = await context.newPage();
     let etapa = "login";
     page.on("pageerror", (error) => errors.push({ rol, etapa, pagina: page.url(), mensaje: error.message }));
+    page.on("console", (mensaje) => { if (mensaje.type() === "error") errors.push({ rol, etapa, pagina: page.url(), mensaje: mensaje.text() }); });
     await page.goto(`${base}/login`);
+    // Exercise a client handler before screenshots modify caret styles during hydration.
+    await page.getByRole("button", { name: "Mostrar contraseña" }).click();
+    await page.locator('input[name="contrasena"][type="text"]').waitFor();
+    await page.getByRole("button", { name: "Ocultar contraseña" }).click();
+    await page.locator('input[name="contrasena"][type="password"]').waitFor();
     for (const viewport of [{ width: 375, height: 812 }, { width: 812, height: 375 }, { width: 1024, height: 768 }]) {
       await page.setViewportSize(viewport);
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), "Login must fit the viewport");
@@ -29,9 +54,6 @@ try {
     await page.getByLabel(/Correo/i).fill(email);
     if (rol === "administrador") {
       await page.locator('input[name="contrasena"]').fill("Invalid-E2E-password");
-      await page.getByRole("button", { name: "Mostrar contraseña" }).click();
-      assert.equal(await page.locator('input[name="contrasena"]').getAttribute("type"), "text");
-      await page.getByRole("button", { name: "Ocultar contraseña" }).click();
       await page.getByRole("button", { name: "Entrar al sistema" }).click();
       await page.getByRole("alert").waitFor();
       assert.equal(await page.getByLabel(/Correo/i).inputValue(), email, "Failed login preserves the email");
@@ -41,6 +63,16 @@ try {
     await page.getByRole("button", { name: "Entrar al sistema" }).click();
     await page.waitForURL("**/dashboard");
     await page.getByRole("heading", { name: "Panel financiero", exact: true }).waitFor();
+    const guia = page.locator("[data-workflow-guide]");
+    await guia.locator("summary").click();
+    await guia.getByText("Paso 1 de 3", { exact: true }).waitFor();
+    await guia.getByRole("button", { name: "Siguiente", exact: true }).click();
+    await guia.getByText("Paso 2 de 3", { exact: true }).waitFor();
+    await guia.getByRole("button", { name: "Anterior", exact: true }).click();
+    await guia.getByText("Paso 1 de 3", { exact: true }).waitFor();
+    await guia.getByRole("button", { name: "Explora el resultado", exact: true }).click();
+    await guia.getByRole("button", { name: "Entendido", exact: true }).click();
+    assert.equal(await guia.getAttribute("open"), null);
     assert.equal(await page.getByRole("region", { name: "Gráficos financieros" }).getByRole("article").count(), 4);
     assert.equal(await page.getByRole("heading", { name: "Detalle de movimientos" }).count(), 0);
     assert.equal(await page.locator("header").getByText("Datos simulados", { exact: true }).count(), 0);
@@ -56,6 +88,11 @@ try {
       if (path === "ingresos" || path === "gastos") {
         assert.equal(await page.getByRole("region", { name: "Indicadores financieros" }).count(), 0);
         assert.equal(await page.getByRole("link", { name: /^Registrar/ }).count(), 0);
+        const ayuda = page.locator("[data-workflow-guide]");
+        await ayuda.locator("summary").click();
+        await ayuda.getByRole("link", { name: path === "ingresos" ? "Completar ingreso" : "Completar gasto", exact: true }).click();
+        await page.waitForFunction(() => document.activeElement?.getAttribute("name") === "concepto");
+        assert.equal(await ayuda.getAttribute("open"), null);
       }
     }
     for (const [path, tipo] of [["ingresos", "ingreso"], ["gastos", "gasto"]]) {
@@ -79,38 +116,47 @@ try {
       await alta.getByLabel(/^Categoría/).selectOption({ index: 1 });
       await alta.getByRole("button", { name: `Guardar ${tipo}` }).click();
       await alta.getByRole("status").filter({ hasText: "Revise" }).waitFor();
+      await page.waitForFunction(() => document.activeElement?.getAttribute("name") === "monto");
       assert.equal(await alta.getByLabel(/^Concepto/).inputValue(), concepto);
       assert.equal(await alta.locator('input[name="solicitud_id"]').inputValue(), solicitud, "Retry keeps its identity");
       await alta.getByLabel(/^Monto/).fill("25.50");
       simulaciones.movimientos.push({ tipo, concepto });
       await alta.getByRole("button", { name: `Guardar ${tipo}` }).click();
       await alta.getByRole("status").filter({ hasText: "Operación confirmada" }).waitFor();
-      const row = page.getByRole("row").filter({ hasText: concepto });
-      await row.waitFor();
-      assert.ok((await row.innerText()).includes("$25.50"));
       assert.equal(await alta.getByLabel(/^Concepto/).inputValue(), "");
       assert.equal(await alta.getByLabel(/^Monto/).inputValue(), "");
       assert.equal(await alta.getByLabel(/^Categoría/).inputValue(), "");
       assert.notEqual(await alta.locator('input[name="solicitud_id"]').inputValue(), solicitud);
       assert.equal(await page.getByText(/Continuar con/).count(), 0);
+      const row = await localizarMovimiento(page, concepto);
+      assert.ok((await row.innerText()).includes("$25.50"));
       const segundo = `${concepto} consecutivo`;
       simulaciones.movimientos.push({ tipo, concepto: segundo });
       await alta.getByLabel(/^Concepto/).fill(segundo);
       await alta.getByLabel(/^Monto/).fill("26.75");
       await alta.getByLabel(/^Categoría/).selectOption({ index: 1 });
       await alta.getByRole("button", { name: `Guardar ${tipo}` }).click();
-      await page.getByRole("row").filter({ hasText: segundo }).waitFor();
+      await page.waitForFunction(() => document.querySelector('#nueva-captura input[name="concepto"]')?.value === "");
+      await localizarMovimiento(page, segundo);
       if (tipo === "ingreso") {
         etapa = "panel con datos";
         await page.goto(`${base}/dashboard`);
         await page.getByRole("region", { name: "Gráficos financieros" }).getByRole("img").first().waitFor();
+        await page.locator('[data-chart-engine="apache-echarts"][data-chart-state="ready"]').nth(3).waitFor();
         assert.equal(await page.getByRole("region", { name: "Gráficos financieros" }).getByRole("img").count(), 4);
+        const primerGrafico = page.getByRole("region", { name: "Gráficos financieros" }).getByRole("article").first();
+        await primerGrafico.getByRole("button", { name: "Barras", exact: true }).click();
+        assert.equal(await primerGrafico.getByRole("button", { name: "Barras", exact: true }).getAttribute("aria-pressed"), "true");
+        await primerGrafico.locator('[data-chart-state="ready"] svg').waitFor();
+        await primerGrafico.getByRole("img").focus();
+        await primerGrafico.getByRole("img").press("End");
+        await primerGrafico.locator('[aria-live="polite"]').filter({ hasText: "$52.25" }).waitFor();
         await page.screenshot({ path: `test-results/panel-${rol}-con-datos.png` });
         await page.goto(`${base}/${path}`);
         etapa = `anulación ${tipo}`;
       }
       for (const nombre of [concepto, segundo]) {
-        const registro = page.getByRole("row").filter({ has: page.getByText(nombre, { exact: true }) });
+        const registro = await localizarMovimiento(page, nombre);
         await registro.getByRole("button", { name: "Anular", exact: true }).click();
         const anular = page.locator("form").filter({ has: page.getByLabel(/Motivo de anulación/) });
         await anular.getByLabel(/Motivo de anulación/).fill("Cierre de prueba E2E con datos simulados");
@@ -125,7 +171,7 @@ try {
       await page.getByLabel("Estado").selectOption("anulado");
       await page.getByRole("button", { name: "Aplicar filtros" }).click();
       await page.waitForURL("**estado=anulado**");
-      await page.getByRole("row").filter({ has: page.getByText(concepto, { exact: true }) }).waitFor();
+      await localizarMovimiento(page, concepto);
       console.log(`PASS: ${rol} ${tipo} create, void and status filter through browser`);
     }
     etapa = "usuarios";
@@ -133,7 +179,7 @@ try {
     if (rol === "administrador") {
       await page.getByRole("heading", { name: "Usuarios", exact: true }).waitFor();
       await page.locator("summary").filter({ hasText: "Registrar usuario" }).click();
-      const alta = page.locator("details").first().locator("form");
+      const alta = page.locator("details").filter({ has: page.locator("#registrar-usuario") }).locator("form");
       const nombre = `E2E SIMULADO usuario ${Date.now()}`;
       await alta.getByLabel("Nombre", { exact: true }).fill(nombre);
       await alta.getByLabel("Correo", { exact: true }).fill(`e2e-${Date.now()}@carlitos.local`);
@@ -166,6 +212,7 @@ try {
       const nuevaSesion = await browser.newContext();
       const nuevoLogin = await nuevaSesion.newPage();
       nuevoLogin.on("pageerror", (error) => errors.push({ rol, etapa: "sesión de usuario nuevo", pagina: nuevoLogin.url(), mensaje: error.message }));
+      nuevoLogin.on("console", (mensaje) => { if (mensaje.type() === "error") errors.push({ rol, etapa: "sesión de usuario nuevo", pagina: nuevoLogin.url(), mensaje: mensaje.text() }); });
       await nuevoLogin.goto(`${base}/login`);
       await nuevoLogin.getByLabel(/Correo/).fill(nuevoCorreo);
       await nuevoLogin.locator('input[name="contrasena"]').fill(passwordCorto);
@@ -247,6 +294,13 @@ try {
     await page.goto(`${base}/dashboard`);
     await page.getByRole("heading", { name: "Panel financiero", exact: true }).waitFor();
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth));
+    const guiaMovil = page.locator("[data-workflow-guide]");
+    await guiaMovil.locator("summary").click();
+    await guiaMovil.getByRole("button", { name: "Siguiente", exact: true }).click();
+    await guiaMovil.getByText("Paso 2 de 3", { exact: true }).waitFor();
+    assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth));
+    await page.screenshot({ path: `test-results/guia-${rol}-mobile.png` });
+    await guiaMovil.locator("summary").click();
     await page.screenshot({ path: `test-results/panel-${rol}-mobile.png` });
     await page.getByRole("button", { name: "Abrir menu de navegacion" }).click();
     await page.getByRole("dialog").getByRole("link", { name: "Reportes", exact: true }).click();

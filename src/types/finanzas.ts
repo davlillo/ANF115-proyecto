@@ -67,9 +67,10 @@ export type GraficoFinanciero = {
   unidad: "USD" | "%";
   minimo: string;
   maximo: string;
-  cero: string;
-  puntos: { periodo: string; valor: string | null; x: string; y: string | null; alto: string; negativo: boolean }[];
-  anchoBarra: string;
+  limiteInferior: string;
+  limiteSuperior: string;
+  marcas: { posicion: string; valor: string }[];
+  puntos: { periodo: string; valor: string | null; posicion: string | null; negativo: boolean }[];
   conDatos: boolean;
 };
 export type EventoBitacora = {
@@ -121,6 +122,7 @@ export type CampoOperacion = {
   maxLength?: number;
   minLength?: number;
   placeholder?: string;
+  ayuda?: string;
 };
 
 export type AccionOperacion = (estado: EstadoOperacion, datos: FormData) => Promise<EstadoOperacion>;

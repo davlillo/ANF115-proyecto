@@ -15,6 +15,11 @@ actividad paginada y estado. `/auditoria?vista=bitacora` muestra el historial
 general. Detalle de decisiones y trazabilidad:
 [observaciones del Word](../implementacion/22_RECONSTRUCCION_SIETE_MODULOS.md#observaciones-del-word--12112026).
 
+**Mejora posterior solicitada:** los cuatro gráficos se renderizan con Apache
+ECharts, con cambio líneas/barras y tablas exactas renderizadas en servidor.
+Los módulos incluyen ayuda opcional de tres pasos, sin tutoriales bloqueantes.
+Las decisiones de carga, precisión y accesibilidad están en el documento 22.
+
 ## 1. Criterio de diseño
 
 Cada pantalla tiene un propósito visible, un contexto financiero y una operación principal. La navegación respeta la estructura de `src/app` del [documento 06](06_DIRECTORIOS_Y_CONVENCIONES.md). Las pantallas comparten componentes mediante Atomic Design; las fórmulas y permisos efectivos se resuelven en el servidor.

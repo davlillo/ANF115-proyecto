@@ -1,5 +1,40 @@
 # 20. Registro de validación y pendientes
 
+## Mejora posterior: Apache ECharts y guías contextuales
+
+Petición posterior a la publicación `e0bfcb2`: reemplazar el motor de gráficos y
+orientar al usuario con pasos. Esta sección conserva la evidencia anterior y
+registra por separado la nueva implementación; no cambia fórmulas, RPC ni RLS.
+
+| Evidencia | Ejecución real | Resultado |
+| --- | --- | --- |
+| EV-GUIA01 | `npm run lint`, `npm run typecheck`, `git diff --check` | Correctos; se mantienen las fronteras de capas y la validación estricta. |
+| EV-GUIA02 | `npm run test:unit` | 100 pruebas correctas en 16 archivos: coordenadas acotadas, importes grandes exactos, nulos, pérdidas, opciones ECharts, tablas SSR y ayuda opcional por módulo/rol. |
+| EV-GUIA03 | `npm install --save-exact echarts@6.1.0`; revisión del lockfile; `npm audit --json` | Solo se añade ECharts, zrender y sus copias de tslib; sin cambios de versión en paquetes existentes. Diez avisos moderados en las cadenas ya presentes de ExcelJS/ESLint; ninguno en ECharts/zrender. No hay avisos altos/críticos; no se ejecutó `audit fix` ni se cambiaron dependencias ajenas a la petición. |
+| EV-GUIA04 | `npm run build`, Next 16.4.2/Turbopack en la copia C: NTFS | Compilación y TypeScript correctos, 49 rutas. ECharts se carga como módulo diferido; las tablas y el estado de carga se renderizan en servidor. No se cambió el bundler ni el stack. |
+| EV-GUIA05 | `npm run test:e2e` contra `next start`; recorrido adicional previo en desarrollo | Administrador y empleado: guía con avanzar/retroceder/saltar/cerrar, enlaces que enfocan la captura, foco del primer error, cuatro gráficos listos, líneas/barras, selección con teclado e importe exacto, menú/guía móvil y permisos correctos. Producción sin errores JavaScript ni errores de consola capturados. Se mantienen las verificaciones de captura, anulación y desactivación de sesiones. |
+| EV-GUIA06 | Diagnóstico local `validar-echarts-responsive.mjs` contra producción, fixtures identificadas y anuladas al terminar | Gráficos poblados, resultado negativo exacto de `-$160.15`, intervalo de 30 días, movimiento reducido y redimensionado a 375×812, 812×375 y 1440×1000 correctos. Se bloqueó deliberadamente el chunk diferido de ECharts: las tablas conservaron los importes y «Reintentar» recuperó el gráfico al restablecer la carga. |
+
+La nueva versión queda disponible localmente en `http://localhost:3000/login`,
+servida desde la copia NTFS. Las capturas revisadas se conservan en
+`test-results/echarts-guias-20261112/` (excluido de Git). No se cargaron cifras de
+ejemplo en la interfaz ni se alteraron datos anteriores; las fixtures se
+identificaron como simuladas y se anularon mediante RPC autorizadas.
+
+Incidencias corregidas de esta ejecución: ECharts exponía su SVG como una segunda
+imagen accesible dentro del contenedor de teclado; el SVG interno ahora está
+oculto solo para accesibilidad y el contenedor conserva nombre/foco. Las primeras
+capturas de login modificaban el estilo del cursor antes de hidratar; la prueba
+ejercita un control de cliente antes de capturar, sin suprimir avisos. El historial
+ya superaba 50 ingresos del mismo día: la prueba dejó de suponer que un UUID nuevo
+aparece en la primera página y busca las capturas recorriendo la paginación
+autorizada, después de comprobar la limpieza del formulario. No se cambió el
+orden financiero ni se borraron registros para hacer pasar la prueba.
+
+La evidencia de la sección siguiente corresponde al corte anterior y permanece
+como historial. Esta mejora se conserva en cambios locales, sin otra publicación
+automática ni modificación de esquema, Auth o permisos.
+
 ## Observaciones de `cambios_anf.docx` — 12/11/2026
 
 Se revisaron el texto y las doce imágenes del Word original, sin modificarlo.

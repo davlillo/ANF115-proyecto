@@ -9,7 +9,7 @@ const ETIQUETA = "flex min-w-0 flex-col gap-1.5 text-xs text-texto-suave";
 export function FinanceFilters({ filtro, categorias, reportes = false, mostrarEstado = true }: {
   filtro: FiltroFinanciero; categorias: Categoria[]; reportes?: boolean; mostrarEstado?: boolean;
 }) {
-  return <form className="flex flex-wrap items-end gap-4 rounded-card border border-borde bg-superficie px-5 py-4">
+  return <form id="filtros-financieros" className="flex scroll-mt-24 flex-wrap items-end gap-4 rounded-card border border-borde bg-superficie px-5 py-4">
     <label className={`${ETIQUETA} w-full sm:w-[168px]`}>Desde
       <Input compacto name="desde" type="date" defaultValue={filtro.desde} required />
     </label>

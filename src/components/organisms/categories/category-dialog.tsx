@@ -17,7 +17,7 @@ export function CategoryDialog({ categoria, accion }: { categoria?: Categoria; a
     { nombre: "descripcion", etiqueta: "Descripción", tipo: "textarea", valor: categoria?.descripcion, maxLength: 500 },
   ];
   return <Dialog open={abierto} onOpenChange={setAbierto}>
-    <DialogTrigger asChild><Button variant={categoria ? "ghost" : "primary"} size={categoria ? "sm" : "md"}>
+    <DialogTrigger asChild><Button id={categoria ? undefined : "nueva-categoria"} variant={categoria ? "ghost" : "primary"} size={categoria ? "sm" : "md"}>
       {categoria ? <Pencil aria-hidden="true" /> : <Plus aria-hidden="true" />}{categoria ? "Editar" : "Nueva categoría"}
     </Button></DialogTrigger>
     <DialogContent>

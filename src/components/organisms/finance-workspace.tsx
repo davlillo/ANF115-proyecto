@@ -19,6 +19,8 @@ import { MetricCard } from "@/components/molecules/metric-card";
 import { FinancialCharts } from "@/components/organisms/financial-charts";
 import { MovementRow } from "@/components/organisms/movement-row";
 import { OperationForm } from "@/components/organisms/operation-form";
+import { WorkflowGuide } from "@/components/organisms/workflow-guide";
+import { guiasFinancieras } from "@/config/guias";
 import { cn } from "@/lib/utils";
 import type { AccionOperacion, CampoOperacion, VistaFinanciera, Movimiento } from "@/types/finanzas";
 
@@ -35,9 +37,9 @@ function camposMovimiento(data: VistaFinanciera, tipo: "ingreso" | "gasto", m?: 
   return [
     { nombre: "concepto", etiqueta: "Concepto", requerido: true, valor: m?.concepto, maxLength: 250,
       placeholder: tipo === "ingreso" ? "Ej. Venta de pan integral o repostería" : "Ej. Compra de insumos o pago de servicio" },
-    { nombre: "monto", etiqueta: "Monto (USD)", requerido: true, valor: m?.monto, placeholder: "0.00" },
+    { nombre: "monto", etiqueta: "Monto (USD)", requerido: true, valor: m?.monto, placeholder: "0.00", ayuda: "Usa punto decimal, sin comas. Ejemplo: 25.50." },
     { nombre: "fecha", etiqueta: "Fecha", tipo: "date", requerido: true, valor: m?.fecha ?? data.fechaSugerida },
-    { nombre: "categoria_id", etiqueta: "Categoría", tipo: "select", requerido: true, valor: m?.categoria_id,
+    { nombre: "categoria_id", etiqueta: "Categoría", tipo: "select", requerido: true, valor: m?.categoria_id, ayuda: tipo === "ingreso" ? "Elige el origen del dinero recibido." : "Elige en qué se utilizó el dinero.",
       opciones: [{ valor: "", etiqueta: "Selecciona una categoría" }, ...data.categorias.filter((c) => c.tipo === tipo && (c.activo || c.id === m?.categoria_id))
         .map((c) => ({ valor: c.id, etiqueta: `${c.codigo} · ${c.nombre}${c.activo ? "" : " (histórica)"}` }))] },
   ];
@@ -72,6 +74,7 @@ export function FinanceWorkspace({ data, modulo, accion }: {
 
   return <div className="space-y-6">
     <h1 className="sr-only">{titulo}</h1>
+    <WorkflowGuide key={modulo} guia={guiasFinancieras[modulo]} />
     {modulo === "reportes" && <div className="flex flex-wrap justify-end gap-2">
           <a href={descargar("pdf")} download className={buttonVariants({ variant: "secondary" })}><Download aria-hidden="true" />Descargar PDF</a>
           <a href={descargar("xlsx")} download className={buttonVariants()}><Download aria-hidden="true" />Descargar Excel</a>
@@ -100,6 +103,10 @@ export function FinanceWorkspace({ data, modulo, accion }: {
       <MetricCard etiqueta="Porcentaje de gastos" valor={data.resumen.porcentaje_gastos === null ? "No aplica" : `${data.resumen.porcentaje_gastos} %`} icono={Percent} />
     </section>}
 
+    {modulo === "panel" && data.resumen.cantidad === 0 && <EmptyState icono={ReceiptText}
+      titulo="Empieza con el primer movimiento" descripcion="Este filtro no tiene movimientos vigentes. Registra un ingreso o un gasto, o amplía las fechas para consultar otro período. Los gráficos aparecerán con tus datos."
+      accion={<div className="flex flex-wrap justify-center gap-2"><Link href={rutas.ingresos} className={buttonVariants()}>Registrar un ingreso</Link><Link href={rutas.gastos} className={buttonVariants({ variant: "secondary" })}>Registrar un gasto</Link></div>} />}
+
     {modulo === "panel" && <FinancialCharts graficos={data.graficos} granularidad={data.filtro.granularidad} />}
 
     {modulo === "reportes" && <section className="space-y-3">
@@ -121,7 +128,7 @@ export function FinanceWorkspace({ data, modulo, accion }: {
         </tr>)}</tbody></table></div></div>
     </section>}
 
-    {modulo !== "panel" && <section className="space-y-3">
+    {modulo !== "panel" && <section id="detalle-movimientos" className="scroll-mt-24 space-y-3">
       <header>
         <h2 className="text-[17px] font-semibold tracking-[-0.01em]">Detalle de movimientos</h2>
         <p className="mt-0.5 text-[13px] text-texto-suave">50 registros por página. Los anulados conservan su historial, pero no forman parte de los indicadores.</p>

@@ -86,6 +86,39 @@ La compilación y los recorridos se registran en el documento 20. E: es exFAT:
 Turbopack no puede crear sus junctions allí. La verificación usa una copia temporal
 en C: (NTFS), sin cambiar Next, Turbopack ni el repositorio de trabajo.
 
+## Mejora posterior solicitada: Apache ECharts y uso guiado
+
+La nueva petición del usuario sustituye el trazado SVG manual por **Apache
+ECharts 6.1.0**, instalado con versión exacta. Se integra directamente, sin
+wrapper React ni CDN, porque no exige una versión de React y permite importar
+solo líneas, barras, ejes, tooltip, zoom y accesibilidad. Next 16 y React 19 se
+conservan. El motor se carga únicamente en el navegador; cada instancia se
+redimensiona con su contenedor y se libera al salir de la pantalla.
+
+La visualización recibe coordenadas acotadas de −100 a 100 calculadas con
+Decimal en el servicio de presentación. **No se convierten importes a `number`**:
+las etiquetas de ejes, tooltips y tablas conservan los strings originales y los
+marcadores exactos del servicio. No se recalculan ingresos, gastos, resultado
+ni porcentaje en React. Los nulos siguen siendo «No aplica» y las pérdidas
+mantienen su signo. Las tablas se renderizan en servidor aunque el motor falle.
+
+Cada gráfico permite alternar líneas/barras y consultar puntos con puntero,
+toque o teclado. El control de intervalo aparece cuando hay más de 14 períodos;
+no cambia el filtro ni los totales del servidor. Las animaciones se desactivan.
+
+Los siete módulos incorporan una **Guía paso a paso** opcional, inicialmente
+cerrada, con tres pasos, navegación libre y enlaces a acciones reales. No se
+reintroducen los encabezados decorativos ni el banner permanente de categorías.
+La ayuda de categorías distingue consulta de empleado y administración. El
+Panel vacío ofrece un siguiente paso sin cifras ficticias. Los formularios
+explican monto/categoría y enfocan el primer error devuelto por el servidor;
+la captura rápida sigue en un solo formulario, sin un asistente obligatorio.
+
+RF afectados: RF03–RF10; CU de lectura, captura y administración ya existentes.
+No cambia ningún permiso, contrato RPC, fórmula financiera ni esquema SQL.
+Las pruebas y límites de esta mejora se registran por separado en el documento
+20, sin sustituir la evidencia anterior.
+
 ## Migración y reversibilidad
 
 La nueva migración conserva las tablas anteriores en un esquema privado de

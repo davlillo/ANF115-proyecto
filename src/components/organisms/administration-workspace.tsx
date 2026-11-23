@@ -12,6 +12,8 @@ import { AuditTable } from "@/components/organisms/audit-table";
 import { CategoryDialog } from "@/components/organisms/categories/category-dialog";
 import { UserActionsLink } from "@/components/organisms/users/user-actions-link";
 import { OperationForm } from "./operation-form";
+import { WorkflowGuide } from "@/components/organisms/workflow-guide";
+import { guiasAdministracion } from "@/config/guias";
 import { rutas } from "@/config/rutas";
 import { LONGITUD_MINIMA_CONTRASENA } from "@/config/seguridad";
 import { cn } from "@/lib/utils";
@@ -51,6 +53,7 @@ export function AdministrationWorkspace({ modulo, perfil, categorias, perfiles, 
   const seguridad = modulo === "bitacora";
   return <div className="space-y-6">
     <h1 className="sr-only">{TITULOS[modulo]}</h1>
+    <WorkflowGuide key={`${modulo}-${admin}`} guia={guiasAdministracion[modulo === "categorias" && !admin ? "categoriasConsulta" : modulo]} />
     {seguridad && <nav aria-label="Secciones de seguridad" className="flex flex-wrap gap-2">
       <Link href={rutas.auditoria} aria-current={vistaSeguridad === "usuarios" ? "page" : undefined}
         className={buttonVariants({ variant: vistaSeguridad === "usuarios" ? "primary" : "secondary" })}>Acceso de usuarios</Link>
@@ -61,7 +64,7 @@ export function AdministrationWorkspace({ modulo, perfil, categorias, perfiles, 
       <AuditTable eventos={eventos} />
     </> : <>
       {admin && modulo === "usuarios" && <details className="group">
-        <summary className={RESUMEN_BOTON}>
+        <summary id="registrar-usuario" className={RESUMEN_BOTON}>
           <UserPlus aria-hidden="true" />Registrar usuario
         </summary>
         <div className="mt-4 rounded-card border border-borde bg-superficie p-6"><h2 className="mb-4 text-[17px] font-semibold tracking-[-0.01em]">Registrar usuario</h2>

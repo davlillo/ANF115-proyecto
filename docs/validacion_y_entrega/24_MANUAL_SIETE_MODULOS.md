@@ -15,6 +15,10 @@ limita los envíos; esperar antes de repetir una solicitud.
 
 ## Registrar ingresos o gastos
 
+En cada módulo puede abrir **Guía paso a paso**. Muestra tres pasos con
+«Anterior», «Siguiente» y accesos a los controles de esa pantalla. También puede
+elegir cualquier paso o cerrar la guía: no bloquea ni obliga a repetir tareas.
+
 1. Abrir el módulo y completar concepto, monto USD, fecha y categoría compatible.
 2. Usar punto decimal, sin separadores de miles: `1250.50`. La referencia es
    opcional. El importe debe ser positivo y tener como máximo dos decimales.
@@ -86,6 +90,15 @@ totales del filtro financiero. Se completan períodos vacíos.
 Si ingresos = 0, el porcentaje de gastos es «No aplica»; no es cero por defecto.
 Un resultado negativo se muestra con signo. El resultado representa cobros menos
 pagos operativos, no utilidad contable por devengo ni saldo bancario.
+
+Los gráficos usan Apache ECharts. «Líneas» muestra la evolución y «Barras» permite
+comparar períodos. Para consultar un valor, use el puntero o toque un punto.
+También puede enfocar el gráfico con Tab y recorrer sus períodos con las flechas
+izquierda/derecha; Inicio/Fin van a los extremos. El lector de pantalla anuncia
+el valor seleccionado. En intervalos largos aparece un control inferior para
+ampliar una parte del gráfico. Esto no modifica los filtros ni los totales.
+«Ver datos del gráfico» siempre conserva los importes exactos, incluso si no
+carga la visualización. El botón «Reintentar» vuelve a intentar cargar el motor.
 
 No hay exportación PDF/XLSX habilitada. Es complementaria según la guía.
 

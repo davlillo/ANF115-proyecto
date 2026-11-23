@@ -28,6 +28,7 @@
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",
     "decimal.js": "10.6.0",
+    "echarts": "6.1.0",
     "exceljs": "^4.4.0",
     "jspdf": "^4.2.1",
     "jspdf-autotable": "^5.0.9",
