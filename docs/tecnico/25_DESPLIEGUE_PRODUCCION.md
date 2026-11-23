@@ -126,6 +126,34 @@ registrada no puede operar hasta activarla.
 
 Las cuentas siguientes se crean y activan desde la propia aplicación.
 
+### Cuentas creadas el 22/11/2026
+
+| Correo | Rol | Nombre |
+| --- | --- | --- |
+| `admin@carlitos.com` | administrador | Administrador Carlitos |
+| `empleado@carlitos.com` | empleado | Empleado Carlitos |
+
+Ambas están confirmadas y activas. Las contraseñas se entregaron por separado y
+no se registran en el repositorio: si se pierden, se restablecen desde
+Authentication → Users o con el flujo de recuperación de la aplicación.
+
+La activación se aplicó con una migración temporal que suspendió el disparador
+`anf_validar` durante la carga, porque el rol de login del CLI no es
+`postgres`/`supabase_admin`. Después se retiró del historial con
+`supabase migration repair --status reverted`, de modo que local y remoto
+conservan las diez migraciones del repositorio.
+
+Verificación realizada contra el proyecto remoto:
+
+| Comprobación | Resultado |
+| --- | --- |
+| Ingreso con ambas cuentas | Correcto |
+| Perfil visible por el administrador | Las dos cuentas, `activo = true` |
+| Perfil visible por el empleado | Solo la propia |
+| Categorías visibles | 26 en ambos roles |
+| `bitacora` consultada por el empleado | 0 filas (RLS) |
+| `anf_reporte` como administrador | 200 con importes en texto |
+
 ## 4. Verificación posterior
 
 1. `npx supabase migration list` sin diferencias pendientes (si se usó la
