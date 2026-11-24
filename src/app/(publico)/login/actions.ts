@@ -41,5 +41,6 @@ export async function iniciarSesionAction(
     };
   }
 
-  redirect("/dashboard");
+  // La raiz decide el destino: panel para administracion, Ingresos para el empleado.
+  redirect("/");
 }

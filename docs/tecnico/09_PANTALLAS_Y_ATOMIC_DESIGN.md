@@ -20,6 +20,12 @@ ECharts, con cambio líneas/barras y tablas exactas renderizadas en servidor.
 Los módulos incluyen ayuda opcional de tres pasos, sin tutoriales bloqueantes.
 Las decisiones de carga, precisión y accesibilidad están en el documento 22.
 
+**Alcance por rol (23/11/2026):** el empleado ve solo Ingresos, Gastos y
+Categorías. Panel financiero y Reportes dependen de `panel.leer` y se reservan a
+los roles de análisis. La restricción se aplica en la navegación y en el
+servidor; el destino tras el acceso lo resuelve `rutaInicial(permisos)`. Detalle
+en el documento 22.
+
 ## 1. Criterio de diseño
 
 Cada pantalla tiene un propósito visible, un contexto financiero y una operación principal. La navegación respeta la estructura de `src/app` del [documento 06](06_DIRECTORIOS_Y_CONVENCIONES.md). Las pantallas comparten componentes mediante Atomic Design; las fórmulas y permisos efectivos se resuelven en el servidor.

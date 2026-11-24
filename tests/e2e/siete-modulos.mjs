@@ -61,25 +61,34 @@ try {
     await page.locator('input[name="contrasena"]').fill(env.DEMO_USER_PASSWORD);
     etapa = "panel inicial";
     await page.getByRole("button", { name: "Entrar al sistema" }).click();
-    await page.waitForURL("**/dashboard");
-    await page.getByRole("heading", { name: "Panel financiero", exact: true }).waitFor();
-    const guia = page.locator("[data-workflow-guide]");
-    await guia.locator("summary").click();
-    await guia.getByText("Paso 1 de 3", { exact: true }).waitFor();
-    await guia.getByRole("button", { name: "Siguiente", exact: true }).click();
-    await guia.getByText("Paso 2 de 3", { exact: true }).waitFor();
-    await guia.getByRole("button", { name: "Anterior", exact: true }).click();
-    await guia.getByText("Paso 1 de 3", { exact: true }).waitFor();
-    await guia.getByRole("button", { name: "Explora el resultado", exact: true }).click();
-    await guia.getByRole("button", { name: "Entendido", exact: true }).click();
-    assert.equal(await guia.getAttribute("open"), null);
-    assert.equal(await page.getByRole("region", { name: "Gráficos financieros" }).getByRole("article").count(), 4);
-    assert.equal(await page.getByRole("heading", { name: "Detalle de movimientos" }).count(), 0);
-    assert.equal(await page.locator("header").getByText("Datos simulados", { exact: true }).count(), 0);
+    const esAdmin = rol === "administrador";
+    await page.waitForURL(esAdmin ? "**/dashboard" : "**/ingresos");
+    await page.getByRole("heading", { name: esAdmin ? "Panel financiero" : "Ingresos", exact: true }).waitFor();
+    if (esAdmin) {
+      const guia = page.locator("[data-workflow-guide]");
+      await guia.locator("summary").click();
+      await guia.getByText("Paso 1 de 3", { exact: true }).waitFor();
+      await guia.getByRole("button", { name: "Siguiente", exact: true }).click();
+      await guia.getByText("Paso 2 de 3", { exact: true }).waitFor();
+      await guia.getByRole("button", { name: "Anterior", exact: true }).click();
+      await guia.getByText("Paso 1 de 3", { exact: true }).waitFor();
+      await guia.getByRole("button", { name: "Explora el resultado", exact: true }).click();
+      await guia.getByRole("button", { name: "Entendido", exact: true }).click();
+      assert.equal(await guia.getAttribute("open"), null);
+      assert.equal(await page.getByRole("region", { name: "Gráficos financieros" }).getByRole("article").count(), 4);
+      assert.equal(await page.getByRole("heading", { name: "Detalle de movimientos" }).count(), 0);
+      assert.equal(await page.locator("header").getByText("Datos simulados", { exact: true }).count(), 0);
+    }
     await page.screenshot({ path: `test-results/panel-${rol}-desktop.png` });
     const links = await page.getByRole("navigation", { name: "Navegación principal" }).getByRole("link").allTextContents();
-    assert.equal(links.length, rol === "administrador" ? 7 : 5);
-    for (const [path, title] of [["ingresos", "Ingresos"], ["gastos", "Gastos"], ["categorias", "Categorías"], ["reportes", "Reportes"]]) {
+    assert.equal(links.length, esAdmin ? 7 : 3, `${rol}: menu`);
+    if (!esAdmin) {
+      assert.deepEqual(links.map((t) => t.trim()), ["Ingresos", "Gastos", "Categorías"]);
+    }
+    const rutasPorRol = esAdmin
+      ? [["ingresos", "Ingresos"], ["gastos", "Gastos"], ["categorias", "Categorías"], ["reportes", "Reportes"]]
+      : [["ingresos", "Ingresos"], ["gastos", "Gastos"], ["categorias", "Categorías"]];
+    for (const [path, title] of rutasPorRol) {
       etapa = path;
       await page.goto(`${base}/${path}`);
       await page.getByRole("heading", { name: title, exact: true }).waitFor();
@@ -138,7 +147,7 @@ try {
       await alta.getByRole("button", { name: `Guardar ${tipo}` }).click();
       await page.waitForFunction(() => document.querySelector('#nueva-captura input[name="concepto"]')?.value === "");
       await localizarMovimiento(page, segundo);
-      if (tipo === "ingreso") {
+      if (tipo === "ingreso" && esAdmin) {
         etapa = "panel con datos";
         await page.goto(`${base}/dashboard`);
         await page.getByRole("region", { name: "Gráficos financieros" }).getByRole("img").first().waitFor();
@@ -276,6 +285,13 @@ try {
       console.log("PASS: eight-character accounts, dedicated user editing, security-only activation, centered category modals and audit");
     }
     else {
+      for (const denegada of ["/dashboard", "/reportes"]) {
+        await page.goto(`${base}${denegada}`);
+        await page.getByRole("alert").filter({ hasText: "permiso" }).waitFor();
+        assert.equal(await page.getByRole("region", { name: "Indicadores financieros" }).count(), 0);
+        assert.equal(await page.getByRole("region", { name: "Gráficos financieros" }).count(), 0);
+      }
+      await page.goto(`${base}/usuarios`);
       await page.getByRole("alert").filter({ hasText: "permiso" }).waitFor();
       await page.goto(`${base}/auditoria/usuarios/aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa`);
       await page.getByRole("alert").filter({ hasText: "permiso" }).waitFor();
@@ -291,8 +307,8 @@ try {
     }
     etapa = "panel móvil";
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto(`${base}/dashboard`);
-    await page.getByRole("heading", { name: "Panel financiero", exact: true }).waitFor();
+    await page.goto(`${base}${esAdmin ? "/dashboard" : "/ingresos"}`);
+    await page.getByRole("heading", { name: esAdmin ? "Panel financiero" : "Ingresos", exact: true }).waitFor();
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth));
     const guiaMovil = page.locator("[data-workflow-guide]");
     await guiaMovil.locator("summary").click();
@@ -303,9 +319,20 @@ try {
     await guiaMovil.locator("summary").click();
     await page.screenshot({ path: `test-results/panel-${rol}-mobile.png` });
     await page.getByRole("button", { name: "Abrir menu de navegacion" }).click();
-    await page.getByRole("dialog").getByRole("link", { name: "Reportes", exact: true }).click();
-    await page.getByRole("heading", { name: "Reportes", exact: true }).waitFor();
+    const destinoMenu = esAdmin ? "Reportes" : "Gastos";
+    await page.getByRole("dialog").getByRole("link", { name: destinoMenu, exact: true }).click();
+    await page.getByRole("heading", { name: destinoMenu, exact: true }).waitFor();
     assert.equal(await page.getByRole("dialog").count(), 0);
+    if (!esAdmin) {
+      // En movil el menu vive en el dialogo: se abre para comprobar su contenido.
+      await page.getByRole("button", { name: "Abrir menu de navegacion" }).click();
+      const menuEmpleado = await page.getByRole("dialog").getByRole("navigation", { name: "Navegación principal" })
+        .getByRole("link").allTextContents();
+      assert.deepEqual(menuEmpleado.map((t) => t.trim()), ["Ingresos", "Gastos", "Categorías"]);
+      await page.screenshot({ path: "test-results/menu-empleado-mobile.png" });
+      await page.keyboard.press("Escape");
+      assert.equal(await page.getByRole("dialog").count(), 0);
+    }
     await context.close();
     console.log(`PASS: ${rol} login, routes, permissions and mobile layout`);
   }

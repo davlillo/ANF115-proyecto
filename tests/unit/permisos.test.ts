@@ -8,11 +8,18 @@ import {
 } from "@/config/permisos";
 
 describe("permisos", () => {
-  it("define 15 codigos unicos", () => {
+  it("define 16 codigos unicos", () => {
     const valores = Object.values(PERMISOS);
-    expect(valores).toHaveLength(15);
-    expect(new Set(valores).size).toBe(15);
+    expect(valores).toHaveLength(16);
+    expect(new Set(valores).size).toBe(16);
     expect(valores).toContain("finanzas.leer");
+    expect(valores).toContain("panel.leer");
+  });
+
+  it("reserva las vistas consolidadas para los roles de analisis", () => {
+    expect(rolTienePermiso(ROLES.administrador, "panel.leer")).toBe(true);
+    expect(rolTienePermiso(ROLES.empleado, "panel.leer")).toBe(false);
+    expect(rolTienePermiso(ROLES.empleado, "finanzas.leer")).toBe(true);
   });
 
   it("asigna la matriz inicial por rol", () => {

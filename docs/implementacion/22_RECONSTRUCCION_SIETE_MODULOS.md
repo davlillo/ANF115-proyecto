@@ -119,6 +119,33 @@ No cambia ningún permiso, contrato RPC, fórmula financiera ni esquema SQL.
 Las pruebas y límites de esta mejora se registran por separado en el documento
 20, sin sustituir la evidencia anterior.
 
+## Alcance por rol: vistas consolidadas
+
+Decisión del 23/11/2026. El empleado opera, no consolida: su menú queda en
+**Ingresos, Gastos y Categorías**. El **Panel financiero** y **Reportes** pasan a
+depender de un permiso nuevo, `panel.leer`, que solo tienen los roles de análisis
+(administrador, analista y gerencia).
+
+La separación es explícita, no un efecto lateral de `finanzas.leer`:
+
+- `finanzas.leer` sigue habilitando la captura y consulta de movimientos.
+- `panel.leer` habilita las vistas agregadas y los gráficos consolidados.
+
+Se aplica en tres capas para que ocultar un enlace no sea la única defensa:
+
+1. `PERMISOS_POR_ROL` en `src/config/permisos.ts`.
+2. `filtrarNavegacion` en `src/config/navegacion.ts`, que arma el menú.
+3. `requerirPerfilOperativo(false, permiso)` en el servidor: `/dashboard` y
+   `/reportes` responden `PERMISO_DENEGADO` a un empleado aunque escriba la URL.
+
+El destino tras iniciar sesión lo decide `rutaInicial(permisos)`: el panel para
+quien tiene `panel.leer`, Ingresos para el resto. La raíz `/`, el formulario de
+acceso, el logo del menú y el enlace del 404 usan ese mismo destino, de modo que
+no queda ningún enlace que lleve al empleado a una pantalla sin permiso.
+
+Las guías de tres pasos no cambian: el empleado conserva las de Ingresos, Gastos
+y Categorías; las de Panel y Reportes solo las ve quien accede a esas pantallas.
+
 ## Migración y reversibilidad
 
 La nueva migración conserva las tablas anteriores en un esquema privado de

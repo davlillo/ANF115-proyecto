@@ -26,8 +26,8 @@ export const pantallas = {
     descripcion:
       "Contexto de empresa, corte, origen de datos y accesos a los modulos.",
     ruta: "/dashboard",
-    acceso: "finanzas.leer",
-    permiso: "finanzas.leer",
+    acceso: "panel.leer",
+    permiso: "panel.leer",
     fase: "01",
     notaFase: "Datos financieros desde la fase 03",
   },
@@ -336,8 +336,8 @@ export const pantallas = {
       descripcion:
         "Generacion, historial y estado de archivos emitidos.",
       ruta: "/reportes",
-      acceso: "finanzas.leer; generar con reportes.exportar",
-      permiso: "finanzas.leer",
+      acceso: "panel.leer; generar con reportes.exportar",
+      permiso: "panel.leer",
       fase: "05",
     },
     detalle: {

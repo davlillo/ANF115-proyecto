@@ -77,6 +77,11 @@ activo.
 
 ## Panel y reportes
 
+Panel y Reportes son vistas consolidadas y requieren el permiso `panel.leer`.
+El empleado no las tiene: su menú muestra solo Ingresos, Gastos y Categorías, y
+su sesión inicia directamente en Ingresos. Si escribe `/dashboard` o `/reportes`
+en la barra de direcciones, el servidor responde que no tiene permiso.
+
 Aplicar fechas inicial/final, categoría y agrupación temporal. El rango incluye
 ambos extremos y no puede superar una diferencia de 3660 días. «Vigentes» y
 «Anulados» filtran el listado paginado; no alteran los indicadores, que excluyen

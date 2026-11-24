@@ -10,15 +10,16 @@ import { Decimal } from "@/lib/decimal";
 import { desdeError, generarRequestId, ok, fallo } from "@/lib/resultado";
 import { ErrorDominio } from "@/lib/errores";
 import { hoyEnElSalvador } from "@/lib/fechas";
+import type { Permiso } from "@/config/permisos";
 import type { TipoMovimiento } from "@/types/finanzas";
 
 type Query = Record<string, string | string[] | undefined>;
 function texto(q: Query, k: string) { return typeof q[k] === "string" ? q[k] : undefined; }
 
-export async function consultarFinanzas(q: Query, tipo?: "ingreso" | "gasto") {
+export async function consultarFinanzas(q: Query, tipo?: "ingreso" | "gasto", permiso?: Permiso) {
   const requestId = generarRequestId();
   try {
-    const { perfil } = await requerirPerfilOperativo();
+    const { perfil } = await requerirPerfilOperativo(false, permiso);
     const hoy = hoyEnElSalvador();
     const filtro = filtroFinancieroSchema.parse({ desde: texto(q, "desde") ?? `${hoy.slice(0, 7)}-01`,
       hasta: texto(q, "hasta") ?? hoy, categoria: texto(q, "categoria") || undefined,

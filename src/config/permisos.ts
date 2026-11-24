@@ -9,6 +9,7 @@
  */
 export const PERMISOS = {
   finanzasLeer: "finanzas.leer",
+  panelLeer: "panel.leer",
   usuariosGestionar: "usuarios.gestionar",
   catalogoPublicar: "catalogo.publicar",
   periodosGestionar: "periodos.gestionar",
@@ -41,11 +42,16 @@ export type Rol = (typeof ROLES)[keyof typeof ROLES];
  *
  * "Solo asignacion explicita" del documento 08 no se representa aqui: son
  * asignaciones excepcionales que deben existir en la base y quedar auditadas.
+ *
+ * `panel.leer` separa las vistas consolidadas (Panel financiero y Reportes) de
+ * la captura operativa. El empleado registra y consulta sus movimientos en
+ * Ingresos, Gastos y Categorias, pero no accede a los consolidados.
  */
 export const PERMISOS_POR_ROL: Readonly<Record<Rol, readonly Permiso[]>> = {
   empleado: [PERMISOS.finanzasLeer],
   administrador: [
     PERMISOS.finanzasLeer,
+    PERMISOS.panelLeer,
     PERMISOS.usuariosGestionar,
     PERMISOS.catalogoPublicar,
     PERMISOS.periodosGestionar,
@@ -58,6 +64,7 @@ export const PERMISOS_POR_ROL: Readonly<Record<Rol, readonly Permiso[]>> = {
   ],
   analista: [
     PERMISOS.finanzasLeer,
+    PERMISOS.panelLeer,
     PERMISOS.importacionesPreparar,
     PERMISOS.asientosPreparar,
     PERMISOS.presupuestosPreparar,
@@ -66,6 +73,7 @@ export const PERMISOS_POR_ROL: Readonly<Record<Rol, readonly Permiso[]>> = {
   ],
   gerencia: [
     PERMISOS.finanzasLeer,
+    PERMISOS.panelLeer,
     PERMISOS.presupuestosAprobar,
     PERMISOS.reportesExportar,
   ],

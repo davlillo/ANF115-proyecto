@@ -16,9 +16,9 @@ export default function NoEncontrado() {
           para tu contexto.
         </p>
         <Button asChild className="mt-6">
-          <Link href="/dashboard">
+          <Link href="/">
             <ArrowLeft aria-hidden="true" />
-            Volver al panel financiero
+            Volver al inicio
           </Link>
         </Button>
       </div>

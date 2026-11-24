@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import {
   filtrarNavegacion,
   navegacion,
+  rutaInicial,
   type GrupoNavegacion,
   type ItemNavegacion,
 } from "@/config/navegacion";
@@ -65,12 +66,14 @@ function ItemEnlace({
 function ContenidoSidebar({
   pathname,
   grupos,
+  inicio,
   alNavegar,
   cerrarSesion,
   perfil,
 }: {
   pathname: string;
   grupos: readonly GrupoNavegacion[];
+  inicio: string;
   alNavegar?: () => void;
   cerrarSesion?: () => Promise<void>;
   perfil?: { nombre: string; rol: string };
@@ -79,10 +82,10 @@ function ContenidoSidebar({
     <div className="flex h-full flex-col">
       <div className="px-5 pb-4 pt-6">
         <Link
-          href="/dashboard"
+          href={inicio}
           onClick={alNavegar}
           className="flex w-fit items-center gap-3 rounded-input"
-          aria-label="Panadería Carlitos Finanzas, ir al panel financiero"
+          aria-label="Panadería Carlitos Finanzas, ir al inicio"
         >
           <span className="flex size-[34px] items-center justify-center rounded-input bg-primario text-acento-tinte">
             <Croissant aria-hidden="true" className="size-5" />
@@ -160,6 +163,7 @@ export function Sidebar({ permisos, grupos, cerrarSesion, perfil }: SidebarProps
   const gruposVisibles = permisos
     ? filtrarNavegacion(permisos)
     : (grupos ?? navegacion);
+  const inicio = permisos ? rutaInicial(permisos) : "/";
 
   useEffect(() => {
     if (!abierto) {
@@ -209,7 +213,7 @@ export function Sidebar({ permisos, grupos, cerrarSesion, perfil }: SidebarProps
         >
           <Menu aria-hidden="true" className="size-5" />
         </button>
-        <Link href="/dashboard" className="flex items-center gap-2.5">
+        <Link href={inicio} className="flex items-center gap-2.5">
           <span className="flex size-[30px] items-center justify-center rounded-input bg-primario text-acento-tinte">
             <Croissant aria-hidden="true" className="size-4" />
           </span>
@@ -219,7 +223,7 @@ export function Sidebar({ permisos, grupos, cerrarSesion, perfil }: SidebarProps
 
       <aside className="hidden w-[var(--ancho-sidebar)] shrink-0 border-r border-borde bg-fondo lg:block">
         <div className="fixed inset-y-0 left-0 w-[var(--ancho-sidebar)]">
-          <ContenidoSidebar pathname={pathname} grupos={gruposVisibles} cerrarSesion={cerrarSesion} perfil={perfil} />
+          <ContenidoSidebar pathname={pathname} grupos={gruposVisibles} inicio={inicio} cerrarSesion={cerrarSesion} perfil={perfil} />
         </div>
       </aside>
 
@@ -251,6 +255,7 @@ export function Sidebar({ permisos, grupos, cerrarSesion, perfil }: SidebarProps
             <ContenidoSidebar
               pathname={pathname}
               grupos={gruposVisibles}
+              inicio={inicio}
               alNavegar={() => setAbierto(false)}
               cerrarSesion={cerrarSesion}
               perfil={perfil}
